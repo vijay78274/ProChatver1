@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/light">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/msgbox"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        android:id="@+id/msgbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            app:cardCornerRadius="20sp"
+            android:elevation="10sp"
+            android:layout_height="50sp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/msg"
+                    android:layout_width="match_parent"
+                    android:paddingStart="5sp"
+                    android:layout_height="match_parent"
+                    android:hint="Type a message..."
+                    android:layout_weight="1"
+                    android:background="@drawable/custom_edilt"></EditText>
+
+                <ImageView
+                    android:id="@+id/attach"
+                    android:layout_width="20sp"
+                    android:layout_height="25sp"
+                    android:layout_margin="8sp"
+                    android:src="@drawable/attach"></ImageView>
+                <ImageView
+                    android:layout_width="20sp"
+                    android:layout_height="25sp"
+                    android:layout_margin="8sp"
+                    android:src="@drawable/camera"></ImageView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <ImageView
+            android:id="@+id/send"
+            android:layout_width="5sp"
+            android:layout_margin="5sp"
+            android:layout_height="30sp"
+            android:elevation="10sp"
+            android:layout_gravity="center"
+            android:layout_weight="0.3"
+            android:background="@drawable/send_back"
+            android:backgroundTint="@color/orange"
+            android:src="@drawable/send"></ImageView>
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:iconTint="@color/black"
+        android:title="Search"
+        app:showAsAction="always" />
+
+    <item
+        android:title="Groups"
+        android:id="@+id/group"
+        app:showAsAction="never"
+        android:iconTint="@color/black" />
+
+    <item
+        android:id="@+id/set"
+        app:showAsAction="never"
+        android:title="Settings" />
+
+    <item
+        android:id="@+id/inv"
+        android:title="Invite" />
+    <item
+        android:id="@+id/signout"
+        android:title="signout">
+
+    </item>
+</menu>
