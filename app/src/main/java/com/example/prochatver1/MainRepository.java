@@ -1,10 +1,14 @@
-package com.example.prochatver1.Extras;
-import com.example.prochatver1.Models.DataModelType;
+package com.example.prochatver1;
+
 import android.content.Context;
 import android.util.Log;
-import com.example.prochatver1.Models.DataModel;
+import com.example.prochatver1.Extras.DataModel;
+import com.example.prochatver1.Extras.DataModelType;
 import com.example.prochatver1.webrtc.MyPeerConnectionObserver;
 import com.example.prochatver1.webrtc.WebRTCClient;
+import com.example.prochatver1.Extras.NewEventCallBack;
+import com.example.prochatver1.Extras.SuccessCallBack;
+import com.example.prochatver1.Extras.ErrorCallBack;
 import com.google.gson.Gson;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
@@ -20,12 +24,13 @@ public class MainRepository implements WebRTCClient.Listener {
 
     private WebRTCClient webRTCClient;
 
-    private String currentUsername;
+    private String Uid;
+
     private SurfaceViewRenderer remoteView;
 
     private String target;
-    private void updateCurrentUsername(String username){
-        this.currentUsername = username;
+    private void updateCurrentUser(String uid){
+        this.Uid = uid;
     }
 
     private MainRepository(){
@@ -40,9 +45,9 @@ public class MainRepository implements WebRTCClient.Listener {
         return instance;
     }
 
-    public void login(String username, Context context, SuccessCallBack callBack){
-        firebaseClient.login(username,()->{
-            updateCurrentUsername(username);
+    public void login(String uid, Context context, SuccessCallBack callBack){
+        firebaseClient.login(uid,()->{
+            updateCurrentUser(uid);
             this.webRTCClient = new WebRTCClient(context,new MyPeerConnectionObserver(){
                 @Override
                 public void onAddStream(MediaStream mediaStream) {
@@ -75,7 +80,7 @@ public class MainRepository implements WebRTCClient.Listener {
                     super.onIceCandidate(iceCandidate);
                     webRTCClient.sendIceCandidate(iceCandidate,target);
                 }
-            },username);
+            },uid);
             webRTCClient.listener = this;
             callBack.onSuccess();
         });
@@ -106,7 +111,7 @@ public class MainRepository implements WebRTCClient.Listener {
     }
     public void sendCallRequest(String target, ErrorCallBack errorCallBack){
         firebaseClient.sendMessageToOtherUser(
-                new DataModel(target,currentUsername,null, DataModelType.StartCall),errorCallBack
+                new DataModel(target,Uid,null, DataModelType.StartCall),errorCallBack
         );
     }
 
@@ -132,12 +137,12 @@ public class MainRepository implements WebRTCClient.Listener {
                     ));
                     break;
                 case IceCandidate:
-                        try{
-                            IceCandidate candidate = gson.fromJson(model.getData(),IceCandidate.class);
-                            webRTCClient.addIceCandidate(candidate);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
+                    try{
+                        IceCandidate candidate = gson.fromJson(model.getData(),IceCandidate.class);
+                        webRTCClient.addIceCandidate(candidate);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                     break;
                 case StartCall:
                     this.target = model.getSender();

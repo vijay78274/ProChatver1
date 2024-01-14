@@ -1,4 +1,4 @@
-package com.example.prochatver1.Models;
+package com.example.prochatver1.Extras;
 
 public class DataModel {
     private String target;

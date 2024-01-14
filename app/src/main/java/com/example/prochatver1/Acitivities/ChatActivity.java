@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +16,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.prochatver1.Adapters.mssege_adpater;
-import com.example.prochatver1.Extras.MainRepository;
+import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Models.messege;
 import com.example.prochatver1.R;
 import com.example.prochatver1.databinding.ActivityChatActicityBinding;
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity {
 ActivityChatActicityBinding binding;
@@ -50,7 +50,8 @@ String profileImage;
 String senderUid;
 String name;
 String reciveruid;
-    String Callername;
+String Callername;
+MainRepository mainRepository;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -283,49 +284,41 @@ String reciveruid;
     public boolean onOptionsItemSelected (@NonNull MenuItem item){
         int id = item.getItemId();
         if (id == R.id.calls) {
-            new Handler().postDelayed(new Runnable() {
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
+                    // Perform background tasks here
                     Intent intent = new Intent(ChatActivity.this, ConnectingActivity.class);
-                    intent.putExtra("SenderUid",senderUid);
                     intent.putExtra("RecieverUid",reciveruid);
                     intent.putExtra("Profile",profileImage);
                     startActivity(intent);
                 }
-            },4000);
+            });
             return true;
         }
         if(id==R.id.video){
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            database.getReference().child("users").child(auth.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        Callername=snapshot.child("name").getValue(String.class);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-            MainRepository mainRepository = MainRepository.getInstance();
-            PermissionX.init(this)
-                    .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
-                    .request((allGranted, grantedList, deniedList) -> {
-                        if (allGranted) {
-                            //login to firebase here
-                            mainRepository.login(
-                                    Callername, getApplicationContext(), () -> {
-                                        Intent intent = new Intent(ChatActivity.this, ConnectingActivity.class);
-                                        intent.putExtra("Profile",profileImage);
-                                        intent.putExtra("name",name);
-                                        startActivity(intent);
-                                        //if success then we want to move to call activity
-                                    });
-                        }
-                    });
+            mainRepository = MainRepository.getInstance();
+                PermissionX.init(this)
+                        .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
+                        .request((allGranted, grantedList, deniedList) -> {
+                            if (allGranted) {
+                                mainRepository.login(
+                                        senderUid, getApplicationContext(), () -> {
+                                            Toast.makeText(ChatActivity.this,"calls login",Toast.LENGTH_SHORT).show();
+                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    // Perform background tasks here
+                                                    Intent intent = new Intent(ChatActivity.this, MyVideo.class);
+                                                    intent.putExtra("callername",Callername);
+                                                    intent.putExtra("recieverUid",reciveruid);
+                                                    startActivity(intent);
+                                                    finishAffinity();
+                                                }
+                                            });
+                                        });
+                            }
+                        });
             return true;
         }
         return super.onOptionsItemSelected(item);

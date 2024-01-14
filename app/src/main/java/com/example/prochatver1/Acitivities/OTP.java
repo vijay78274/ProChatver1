@@ -11,6 +11,7 @@ import android.renderscript.ScriptGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.example.prochatver1.Models.Users;
 import com.example.prochatver1.databinding.ActivityOtpBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +22,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mukeshsolanki.OnOtpCompletionListener;
 
 import java.util.concurrent.TimeUnit;
@@ -79,15 +85,35 @@ ProgressDialog dialog;
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(OTP.this,"Login",Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(OTP.this, Profile.class);
-                            startActivity(intent);
-                            finishAffinity();
+                            checkNewUser(auth.getCurrentUser().getUid());
                         }
                         else{
                             Toast.makeText(OTP.this,"failed",Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+            }
+        });
+    }
+    public void checkNewUser(String userId){
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Intent intent = new Intent(OTP.this, MainActivity.class);
+                    startActivity(intent);
+                    finishAffinity();
+                } else {
+                    Intent intent = new Intent(OTP.this, Profile.class);
+                    startActivity(intent);
+                    finishAffinity();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle error
             }
         });
     }

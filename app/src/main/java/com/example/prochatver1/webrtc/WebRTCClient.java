@@ -2,8 +2,8 @@ package com.example.prochatver1.webrtc;
 
 import android.content.Context;
 
-import com.example.prochatver1.Models.DataModel;
-import com.example.prochatver1.Models.DataModelType;
+import com.example.prochatver1.Extras.DataModel;
+import com.example.prochatver1.Extras.DataModelType;
 import com.google.gson.Gson;
 
 import org.webrtc.AudioSource;
@@ -31,7 +31,7 @@ public class WebRTCClient {
 
     private final Gson gson = new Gson();
     private final Context context;
-    private final String username;
+    private final String Uid;
     private EglBase.Context eglBaseContext= EglBase.create().getEglBaseContext();
     private PeerConnectionFactory peerConnectionFactory;
     private PeerConnection peerConnection;
@@ -48,9 +48,9 @@ public class WebRTCClient {
 
     public Listener listener;
 
-    public WebRTCClient(Context context, PeerConnection.Observer observer, String username) {
+    public WebRTCClient(Context context, PeerConnection.Observer observer, String uid) {
         this.context = context;
-        this.username = username;
+        this.Uid = uid;
         initPeerConnectionFactory();
         peerConnectionFactory = createPeerConnectionFactory();
         iceServer.add(PeerConnection.IceServer.builder("turn:a.relay.metered.ca:443?transport=tcp")
@@ -146,7 +146,7 @@ public class WebRTCClient {
                             //its time to transfer this sdp to other peer
                             if (listener!=null){
                                 listener.onTransferDataToOtherPeer(new DataModel(
-                                        target,username,sessionDescription.description, DataModelType.Offer
+                                        target,Uid,sessionDescription.description, DataModelType.Offer
                                 ));
                             }
                         }
@@ -171,7 +171,7 @@ public class WebRTCClient {
                             //its time to transfer this sdp to other peer
                             if (listener!=null){
                                 listener.onTransferDataToOtherPeer(new DataModel(
-                                        target,username,sessionDescription.description, DataModelType.Answer
+                                        target,Uid,sessionDescription.description, DataModelType.Answer
                                 ));
                             }
                         }
@@ -195,7 +195,7 @@ public class WebRTCClient {
         addIceCandidate(iceCandidate);
         if (listener!=null){
             listener.onTransferDataToOtherPeer(new DataModel(
-                    target,username,gson.toJson(iceCandidate),DataModelType.IceCandidate
+                    target,Uid,gson.toJson(iceCandidate),DataModelType.IceCandidate
             ));
         }
     }

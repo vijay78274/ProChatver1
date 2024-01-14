@@ -2,158 +2,86 @@ package com.example.prochatver1.Acitivities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.example.prochatver1.Models.DataModelType;
-import com.example.prochatver1.Models.Users;
+import com.example.prochatver1.Models.Calls;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.permissionx.guolindev.PermissionX;
-import android.Manifest;
+
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.prochatver1.Extras.MainRepository;
-import com.example.prochatver1.R;
+import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.databinding.ActivityConnectingBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
-public class ConnectingActivity extends AppCompatActivity implements MainRepository.Listener{
+public class ConnectingActivity extends AppCompatActivity{
     ActivityConnectingBinding binding;
     FirebaseAuth auth;
     FirebaseDatabase database;
     MainRepository mainRepository;
-    String username;
     String Callername;
-    String Recivername;
-    String profile;
-    private static final int RECORD_AUDIO_PERMISSION_CODE = 1000;
-    private static final int CAMERA_PERMISSION_CODE = 1001;
-    boolean isAudio=true;
-    boolean isCamera=true;
-    private Boolean isCameraMuted = false;
-    private Boolean isMicrophoneMuted = false;
+    String recieverUid;
+    String Uid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding=ActivityConnectingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Objects.requireNonNull(getSupportActionBar()).hide();
-//        checkAudioPermission();
-//        checkCameraPermission();
+        recieverUid = getIntent().getStringExtra("RecieverUid");
         auth = FirebaseAuth.getInstance();
+        Uid = auth.getCurrentUser().getUid();
         database = FirebaseDatabase.getInstance();
-        username = auth.getUid();
-
-        Recivername = getIntent().getStringExtra("name");
-        profile = getIntent().getStringExtra("Profile");
-        if(profile==null){
-            Glide.with(this).load(R.drawable.profile_pic).into(binding.profile);
-        }
-        else{
-            Glide.with(this).load(profile).into(binding.profile);
-        }
-
-        binding.name.setText(Callername);
-        binding.callername.setText(Callername);
-        binding.micButton.setOnClickListener(new View.OnClickListener() {
+        database.getReference().child("users").child(Uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                isAudio=!isAudio;
-                if(isAudio){
-                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
-                }
-                else{
-                    binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    Callername=snapshot.child("name").getValue(String.class);
                 }
             }
-        });
-        binding.videoButton.setOnClickListener(new View.OnClickListener() {
+
             @Override
-            public void onClick(View v) {
-                isCamera=!isCamera;
-                if(isCamera){
-                    binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
-                }
-                else{
-                    binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
-                }
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+        init();
     }
-    private void init() {
-        mainRepository = MainRepository.getInstance();
-        mainRepository.sendCallRequest(Recivername, () -> {
-            Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
-        });
-        mainRepository.initLocalView(binding.localView);
-        mainRepository.initRemoteView(binding.remoteView);
-        mainRepository.listener = this;
-
-        mainRepository.subscribeForLatestEvent(data -> {
-            if (data.getType() == DataModelType.StartCall) {
-                runOnUiThread(() -> {
-                    binding.name.setText(data.getSender());
-                    binding.recievingCall.setVisibility(View.VISIBLE);
-                    binding.accept.setOnClickListener(v -> {
-                        //star the call here
-                        mainRepository.startCall(data.getSender());
-                        binding.recievingCall.setVisibility(View.GONE);
-                    });
-                    binding.reject.setOnClickListener(v -> {
-                        binding.recievingCall.setVisibility(View.GONE);
-                    });
+private void init(){
+    mainRepository = MainRepository.getInstance();
+    binding.button.setOnClickListener(v -> {
+        PermissionX.init(this)
+                .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
+                .request((allGranted, grantedList, deniedList) -> {
+                    if (allGranted) {
+                        mainRepository.login(
+                                Uid, getApplicationContext(), () -> {
+                                    Toast.makeText(ConnectingActivity.this,"calls login",Toast.LENGTH_SHORT).show();
+                                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // Perform background tasks here
+                                            Intent intent = new Intent(ConnectingActivity.this, MyVideo.class);
+                                            intent.putExtra("callername",Callername);
+                                            intent.putExtra("recieverUid",recieverUid);
+                                            startActivity(intent);
+                                            finishAffinity();
+                                        }
+                                    });
+                                    //if success then we want to move to call activity
+                                });
+                    }
                 });
-            }
-        });
 
-        binding.switchCameraButton.setOnClickListener(v -> {
-            mainRepository.switchCamera();
-        });
-
-        binding.micButton.setOnClickListener(v -> {
-            if (isMicrophoneMuted) {
-                binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
-            } else {
-                binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
-            }
-            mainRepository.toggleAudio(isMicrophoneMuted);
-            isMicrophoneMuted = !isMicrophoneMuted;
-        });
-
-        binding.videoButton.setOnClickListener(v -> {
-            if (isCameraMuted) {
-                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
-            } else {
-                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
-            }
-            mainRepository.toggleVideo(isCameraMuted);
-            isCameraMuted = !isCameraMuted;
-        });
-
-        binding.endCallButton.setOnClickListener(v -> {
-            mainRepository.endCall();
-            finish();
-        });
-    }
-    public void webrtcConnected() {
-        runOnUiThread(()->{
-            binding.recievingCall.setVisibility(View.GONE);
-            binding.callLayout.setVisibility(View.VISIBLE);
-        });
-    }
-
-    @Override
-    public void webrtcClosed() {
-        runOnUiThread(this::finish);
-    }
+    });
+}
 }

@@ -8,27 +8,21 @@ import android.view.View;
 
 import android.widget.Toast;
 
-import com.example.prochatver1.Extras.MainRepository;
-import com.example.prochatver1.Models.DataModelType;
+import com.example.prochatver1.MainRepository;
+import com.example.prochatver1.Extras.DataModelType;
 import com.example.prochatver1.R;
 import com.example.prochatver1.databinding.ActivityMyVideoBinding;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
 import java.util.Objects;
-import java.util.UUID;
 
 public class MyVideo extends AppCompatActivity implements MainRepository.Listener {
     ActivityMyVideoBinding binding;
     String recieverName;
     FirebaseAuth auth;
     FirebaseDatabase database;
+    String recieverUid;
     private MainRepository mainRepository;
     private Boolean isCameraMuted = false;
     private Boolean isMicrophoneMuted = false;
@@ -40,13 +34,17 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         Objects.requireNonNull(getSupportActionBar()).hide();
         auth = FirebaseAuth.getInstance();
         database=FirebaseDatabase.getInstance();
-        recieverName = getIntent().getStringExtra("receiverName");
+        recieverName = getIntent().getStringExtra("callername");
+        recieverUid = getIntent().getStringExtra("recieverUid");
+        binding.targetUserNameEt.setText(recieverUid);
         init();
     }
     private void init() {
         mainRepository = MainRepository.getInstance();
-        mainRepository.sendCallRequest(recieverName, () -> {
-            Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
+        binding.callBtn.setOnClickListener(v -> {
+            mainRepository.sendCallRequest(binding.targetUserNameEt.getText().toString(), () -> {
+                Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
+            });
         });
         mainRepository.initLocalView(binding.localView);
         mainRepository.initRemoteView(binding.remoteView);
@@ -55,7 +53,7 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         mainRepository.subscribeForLatestEvent(data -> {
             if (data.getType() == DataModelType.StartCall) {
                 runOnUiThread(() -> {
-                    binding.incomingNameTV.setText(data.getSender() + " is Calling you");
+                    binding.incomingNameTV.setText(recieverName + " is Calling you");
                     binding.incomingCallLayout.setVisibility(View.VISIBLE);
                     binding.acceptButton.setOnClickListener(v -> {
                         //star the call here
@@ -102,6 +100,7 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         public void webrtcConnected() {
             runOnUiThread(()->{
                 binding.incomingCallLayout.setVisibility(View.GONE);
+                binding.whoToCallLayout.setVisibility(View.GONE);
                 binding.callLayout.setVisibility(View.VISIBLE);
             });
         }

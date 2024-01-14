@@ -1,7 +1,11 @@
-package com.example.prochatver1.Extras;
+package com.example.prochatver1;
 import androidx.annotation.NonNull;
 
-import com.example.prochatver1.Models.DataModel;
+import com.example.prochatver1.Extras.DataModel;
+import com.example.prochatver1.Extras.ErrorCallBack;
+import com.example.prochatver1.Extras.NewEventCallBack;
+import com.example.prochatver1.Extras.SuccessCallBack;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,13 +16,13 @@ import com.google.gson.Gson;
 import java.util.Objects;
 public class FireBaseClient {
     private final Gson gson = new Gson();
+    FirebaseAuth auth=FirebaseAuth.getInstance();
     private final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-    private String currentUsername;
+    private String Uid=auth.getUid();
     private static final String LATEST_EVENT_FIELD_NAME = "latest_event";
-
-    public void login(String username, SuccessCallBack callBack){
-        dbRef.child("calls").child(username).setValue("").addOnCompleteListener(task -> {
-            currentUsername = username;
+    public void login(String uid, SuccessCallBack callBack){
+        dbRef.child("calls").child(uid).setValue("").addOnCompleteListener(task -> {
+            Uid = uid;
             callBack.onSuccess();
         });
     }
@@ -45,7 +49,7 @@ public class FireBaseClient {
     }
 
     public void observeIncomingLatestEvent(NewEventCallBack callBack){
-        dbRef.child("users").child(currentUsername).child(LATEST_EVENT_FIELD_NAME).addValueEventListener(
+        dbRef.child("calls").child(Uid).child(LATEST_EVENT_FIELD_NAME).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
