@@ -2,12 +2,14 @@ package com.example.prochatver1.Acitivities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import android.view.View;
 
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Extras.DataModelType;
 import com.example.prochatver1.R;
@@ -23,6 +25,7 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
     FirebaseAuth auth;
     FirebaseDatabase database;
     String recieverUid;
+    String Profile;
     private MainRepository mainRepository;
     private Boolean isCameraMuted = false;
     private Boolean isMicrophoneMuted = false;
@@ -36,6 +39,7 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         database=FirebaseDatabase.getInstance();
         recieverName = getIntent().getStringExtra("callername");
         recieverUid = getIntent().getStringExtra("recieverUid");
+        Profile = getIntent().getStringExtra("callerProfile");
         binding.targetUserNameEt.setText(recieverUid);
         init();
     }
@@ -54,6 +58,10 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
             if (data.getType() == DataModelType.StartCall) {
                 runOnUiThread(() -> {
                     binding.incomingNameTV.setText(recieverName + " is Calling you");
+                    if(Profile!=null){
+                        Glide.with(this).load(Profile).placeholder(R.drawable.profile_pic)
+                                .into(binding.callerprofile);
+                    }
                     binding.incomingCallLayout.setVisibility(View.VISIBLE);
                     binding.acceptButton.setOnClickListener(v -> {
                         //star the call here

@@ -51,6 +51,7 @@ String senderUid;
 String name;
 String reciveruid;
 String Callername;
+String callerImage;
 MainRepository mainRepository;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -297,6 +298,20 @@ MainRepository mainRepository;
             return true;
         }
         if(id==R.id.video){
+            database.getReference().child("users").child(senderUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.exists()){
+                        Callername=snapshot.child("name").getValue(String.class);
+                        callerImage=snapshot.child("profileImage").getValue(String.class);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
             mainRepository = MainRepository.getInstance();
                 PermissionX.init(this)
                         .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
@@ -312,6 +327,7 @@ MainRepository mainRepository;
                                                     Intent intent = new Intent(ChatActivity.this, MyVideo.class);
                                                     intent.putExtra("callername",Callername);
                                                     intent.putExtra("recieverUid",reciveruid);
+                                                    intent.putExtra("callerProfile",callerImage);
                                                     startActivity(intent);
                                                     finishAffinity();
                                                 }
