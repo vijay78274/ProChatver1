@@ -1,31 +1,33 @@
 package com.example.prochatver1.Acitivities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.os.Bundle;
-
 import android.view.View;
-
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
-import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Extras.DataModelType;
+import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.R;
 import com.example.prochatver1.databinding.ActivityMyVideoBinding;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 
 public class MyVideo extends AppCompatActivity implements MainRepository.Listener {
     ActivityMyVideoBinding binding;
-    String recieverName;
+    String callerUid;
+    String callerName;
     FirebaseAuth auth;
-    FirebaseDatabase database;
+    String recieverName;
     String recieverUid;
-    String Profile;
+    String callerProfile;
+    String recieverProfile;
     private MainRepository mainRepository;
     private Boolean isCameraMuted = false;
     private Boolean isMicrophoneMuted = false;
@@ -36,11 +38,15 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         setContentView(binding.getRoot());
         Objects.requireNonNull(getSupportActionBar()).hide();
         auth = FirebaseAuth.getInstance();
-        database=FirebaseDatabase.getInstance();
-        recieverName = getIntent().getStringExtra("callername");
+        callerName = getIntent().getStringExtra("callername");
         recieverUid = getIntent().getStringExtra("recieverUid");
-        Profile = getIntent().getStringExtra("callerProfile");
+        callerUid = auth.getUid();
+        callerProfile = getIntent().getStringExtra("callerProfile");
+        recieverProfile = getIntent().getStringExtra("recieverProfile");
+        recieverName = getIntent().getStringExtra("recievername");
         binding.targetUserNameEt.setText(recieverUid);
+        binding.acceptButton.setScaleX(0f);
+        binding.acceptButton.setScaleY(0f);
         init();
     }
     private void init() {
@@ -49,6 +55,13 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
             mainRepository.sendCallRequest(binding.targetUserNameEt.getText().toString(), () -> {
                 Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
             });
+            binding.outGoingNameTv.setText("Calling "+recieverName);
+            if(recieverProfile !=null){
+                Glide.with(this).load(recieverProfile).placeholder(R.drawable.profile_pic)
+                        .into(binding.recieverprofile);
+            }
+            binding.whoToCallLayout.setVisibility(View.GONE);
+            binding.outGoingCallLayout.setVisibility(View.VISIBLE);
         });
         mainRepository.initLocalView(binding.localView);
         mainRepository.initRemoteView(binding.remoteView);
@@ -58,23 +71,37 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
             if (data.getType() == DataModelType.StartCall) {
                 runOnUiThread(() -> {
                     binding.incomingNameTV.setText(recieverName + " is Calling you");
-                    if(Profile!=null){
-                        Glide.with(this).load(Profile).placeholder(R.drawable.profile_pic)
-                                .into(binding.callerprofile);
+                    if(recieverName !=null){
+                        Glide.with(this).load(recieverProfile).placeholder(R.drawable.profile_pic)
+                                .into(binding.recieverprofile);
                     }
+                    startAcceptButtonAnimation();
                     binding.incomingCallLayout.setVisibility(View.VISIBLE);
                     binding.acceptButton.setOnClickListener(v -> {
                         //star the call here
                         mainRepository.startCall(data.getSender());
                         binding.incomingCallLayout.setVisibility(View.GONE);
+                        binding.whoToCallLayout.setVisibility(View.GONE);
+                        binding.callLayout.setVisibility(View.VISIBLE);
                     });
                     binding.rejectButton.setOnClickListener(v -> {
-                        binding.incomingCallLayout.setVisibility(View.GONE);
+                        Toast.makeText(this,"call  rejected",Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        startActivity(intent);
+                        finishAffinity();
                     });
                 });
             }
         });
-
+        binding.CallendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainRepository.endCall();
+                Intent intent = new Intent(MyVideo.this, MainActivity.class);
+                startActivity(intent);
+                finishAffinity();
+            }
+        });
         binding.switchCameraButton.setOnClickListener(v -> {
             mainRepository.switchCamera();
         });
@@ -102,12 +129,14 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         binding.endCallButton.setOnClickListener(v -> {
             mainRepository.endCall();
             finish();
+            webrtcClosed();
         });
     }
         @Override
         public void webrtcConnected() {
             runOnUiThread(()->{
                 binding.incomingCallLayout.setVisibility(View.GONE);
+                binding.outGoingCallLayout.setVisibility(View.GONE);
                 binding.whoToCallLayout.setVisibility(View.GONE);
                 binding.callLayout.setVisibility(View.VISIBLE);
             });
@@ -116,5 +145,22 @@ public class MyVideo extends AppCompatActivity implements MainRepository.Listene
         @Override
         public void webrtcClosed() {
             runOnUiThread(this::finish);
+            Intent intent = new Intent(MyVideo.this, MainActivity.class);
+            startActivity(intent);
+            finishAffinity();
         }
+    private void startAcceptButtonAnimation() {
+        ObjectAnimator scaleXAnimator = ObjectAnimator.ofFloat(binding.acceptButton, View.SCALE_X, 1f);
+        ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(binding.acceptButton, View.SCALE_Y, 1f);
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(scaleXAnimator, scaleYAnimator);
+        animatorSet.setDuration(500);
+        animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
+        animatorSet.start();
+    }
+
+    private void onError() {
+        Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
+    }
 }

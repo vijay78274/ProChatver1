@@ -1,7 +1,11 @@
 package com.example.prochatver1;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
+
+import com.example.prochatver1.Acitivities.MainActivity;
 import com.example.prochatver1.Extras.DataModel;
 import com.example.prochatver1.Extras.DataModelType;
 import com.example.prochatver1.webrtc.MyPeerConnectionObserver;
@@ -17,7 +21,6 @@ import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceViewRenderer;
 
 public class MainRepository implements WebRTCClient.Listener {
-
     public Listener listener;
     private final Gson gson = new Gson();
     private final FireBaseClient firebaseClient;
@@ -29,6 +32,7 @@ public class MainRepository implements WebRTCClient.Listener {
     private SurfaceViewRenderer remoteView;
 
     private String target;
+
     private void updateCurrentUser(String uid){
         this.Uid = uid;
     }
@@ -114,7 +118,6 @@ public class MainRepository implements WebRTCClient.Listener {
                 new DataModel(target,Uid,null, DataModelType.StartCall),errorCallBack
         );
     }
-
     public void endCall(){
         webRTCClient.closeConnection();
     }

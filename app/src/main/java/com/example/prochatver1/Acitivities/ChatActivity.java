@@ -46,7 +46,7 @@ ArrayList<messege> message;
 String senderRoom, reciverRoom;
 FirebaseDatabase database;
 FirebaseStorage storage;
-String profileImage;
+String recieveImage;
 String senderUid;
 String name;
 String reciveruid;
@@ -66,7 +66,7 @@ MainRepository mainRepository;
         name = getIntent().getStringExtra("name");
         reciveruid = getIntent().getStringExtra("uid");
         senderUid = FirebaseAuth.getInstance().getUid();
-        profileImage = getIntent().getStringExtra("profile");
+        recieveImage = getIntent().getStringExtra("profile");
 
         senderRoom = senderUid + reciveruid;
         reciverRoom = reciveruid + senderUid;
@@ -291,7 +291,6 @@ MainRepository mainRepository;
                     // Perform background tasks here
                     Intent intent = new Intent(ChatActivity.this, ConnectingActivity.class);
                     intent.putExtra("RecieverUid",reciveruid);
-                    intent.putExtra("Profile",profileImage);
                     startActivity(intent);
                 }
             });
@@ -328,6 +327,8 @@ MainRepository mainRepository;
                                                     intent.putExtra("callername",Callername);
                                                     intent.putExtra("recieverUid",reciveruid);
                                                     intent.putExtra("callerProfile",callerImage);
+                                                    intent.putExtra("recieverProfile",recieveImage);
+                                                    intent.putExtra("recievername",name);
                                                     startActivity(intent);
                                                     finishAffinity();
                                                 }

@@ -5,12 +5,24 @@ public class DataModel {
     private String sender;
     private String data;
     private DataModelType type;
+    String status;
 
     public DataModel(String target, String sender, String data, DataModelType type) {
         this.target = target;
         this.sender = sender;
         this.data = data;
         this.type = type;
+    }
+    public DataModel(){
+
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getTarget() {

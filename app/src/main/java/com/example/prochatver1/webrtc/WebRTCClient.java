@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WebRTCClient {
-
     private final Gson gson = new Gson();
     private final Context context;
     private final String Uid;

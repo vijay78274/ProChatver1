@@ -1,7 +1,7 @@
 package com.example.prochatver1.Models;
 
 public class Users {
-    public String uid,name, phoneNumber, profileImage, isNewUser;
+    public String uid,name, phoneNumber, profileImage;
 
     public Users(){
 
