@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.prochatver1.Adapters.mssege_adpater;
 import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Models.messege;
@@ -39,7 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity{
 ActivityChatActicityBinding binding;
 mssege_adpater adapter;
 ArrayList<messege> message;
@@ -312,30 +313,30 @@ MainRepository mainRepository;
                 }
             });
             mainRepository = MainRepository.getInstance();
-                PermissionX.init(this)
-                        .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
-                        .request((allGranted, grantedList, deniedList) -> {
-                            if (allGranted) {
-                                mainRepository.login(
-                                        senderUid, getApplicationContext(), () -> {
-                                            Toast.makeText(ChatActivity.this,"calls login",Toast.LENGTH_SHORT).show();
-                                            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    // Perform background tasks here
-                                                    Intent intent = new Intent(ChatActivity.this, MyVideo.class);
-                                                    intent.putExtra("callername",Callername);
-                                                    intent.putExtra("recieverUid",reciveruid);
-                                                    intent.putExtra("callerProfile",callerImage);
-                                                    intent.putExtra("recieverProfile",recieveImage);
-                                                    intent.putExtra("recievername",name);
-                                                    startActivity(intent);
-                                                    finishAffinity();
-                                                }
-                                            });
+            PermissionX.init(this)
+                    .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
+                    .request((allGranted, grantedList, deniedList) -> {
+                        if (allGranted) {
+                            mainRepository.login(
+                                    senderUid, getApplicationContext(), () -> {
+                                        Toast.makeText(ChatActivity.this,"calls login",Toast.LENGTH_SHORT).show();
+                                        Executors.newSingleThreadExecutor().execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                // Perform background tasks here
+                                                Intent intent = new Intent(ChatActivity.this, MyVideo.class);
+                                                intent.putExtra("callername",Callername);
+                                                intent.putExtra("recieverUid",reciveruid);
+                                                intent.putExtra("callerProfile",callerImage);
+                                                intent.putExtra("recieverProfile",recieveImage);
+                                                intent.putExtra("recievername",name);
+                                                startActivity(intent);
+                                                finishAffinity();
+                                            }
                                         });
-                            }
-                        });
+                                    });
+                        }
+                    });
             return true;
         }
         return super.onOptionsItemSelected(item);

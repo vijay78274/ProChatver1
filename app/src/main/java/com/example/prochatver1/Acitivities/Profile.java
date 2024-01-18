@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
+import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Models.Calls;
 import com.example.prochatver1.Models.Users;
 import com.example.prochatver1.databinding.ActivityProfileBinding;
@@ -27,6 +29,7 @@ ActivityProfileBinding binding;
 FirebaseAuth auth;
 FirebaseDatabase database;
 FirebaseStorage storage;
+MainRepository mainRepository;
 Uri selectedImage;
 ProgressDialog dialog;
     @Override
@@ -41,6 +44,7 @@ ProgressDialog dialog;
         dialog = new ProgressDialog(this);
         dialog.setMessage("Uploading profile");
         dialog.setCancelable(false);
+        mainRepository = MainRepository.getInstance();
         binding.image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,7 +112,6 @@ ProgressDialog dialog;
                                 finish();
                             }
                         });
-
             }
         });
     }
