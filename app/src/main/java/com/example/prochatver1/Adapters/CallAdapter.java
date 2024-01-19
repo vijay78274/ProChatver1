@@ -5,13 +5,16 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.prochatver1.Acitivities.ChatActivity;
 import com.example.prochatver1.Acitivities.MainActivity;
+import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Models.Users;
 import com.example.prochatver1.R;
 import com.example.prochatver1.databinding.CallUsersBinding;
@@ -66,10 +69,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.CallViewHolder
 
             }
         });
-        holder.binding.name.setText(pos.getName());
-        Glide.with(context).load(pos.getProfileImage())
-                .placeholder(R.drawable.profile_pic)
-                .into(holder.binding.imageView2);
     }
 
     @Override

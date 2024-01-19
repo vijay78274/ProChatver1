@@ -11,6 +11,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.R;
 import com.example.prochatver1.Models.Users;
 import com.example.prochatver1.Adapters.UsersAdapter;
@@ -22,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.permissionx.guolindev.PermissionX;
 
 import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Users> users;
     UsersAdapter usersAdapter;
     Users user;
+    String senderUid;
+    MainRepository mainRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
         if (!Network.isNetworkAvailable(this)) {
             showNetworkError();
         }
+            senderUid = FirebaseAuth.getInstance().getUid();
             database = FirebaseDatabase.getInstance();
+            mainRepository=MainRepository.getInstance();
             users = new ArrayList<>();
             database.getReference().child("users").child(FirebaseAuth.getInstance().getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -100,6 +108,17 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             });
+        PermissionX.init(this)
+                .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
+                .request((allGranted, grantedList, deniedList) -> {
+                    if (allGranted) {
+                        mainRepository.login(
+                                senderUid, getApplicationContext(), () -> {
+                                    Toast.makeText(MainActivity.this, "calls login", Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                });
+
     }
         @Override
         public boolean onCreateOptionsMenu (Menu menu){

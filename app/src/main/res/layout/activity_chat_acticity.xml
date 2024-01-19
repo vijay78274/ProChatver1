@@ -3,72 +3,302 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="@drawable/light">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyler"
+    <RelativeLayout
+        android:id="@+id/chatlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/msgbox"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/light"
+        android:visibility="visible">
 
-    <LinearLayout
-        android:id="@+id/msgbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/msgbox"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/float_video"
             android:layout_width="wrap_content"
-            android:layout_weight="1"
-            app:cardCornerRadius="20sp"
-            android:elevation="10sp"
-            android:layout_height="50sp">
+            android:layout_height="wrap_content"
+            android:src="@drawable/video_orange"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="start"
-                android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/msgbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/msg"
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                app:cardCornerRadius="20sp"
+                android:elevation="10sp"
+                android:layout_height="50sp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:paddingStart="5sp"
                     android:layout_height="match_parent"
-                    android:hint="Type a message..."
-                    android:layout_weight="1"
-                    android:background="@drawable/custom_edilt"></EditText>
+                    android:layout_gravity="start"
+                    android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/attach"
-                    android:layout_width="20sp"
-                    android:layout_height="25sp"
-                    android:layout_margin="8sp"
-                    android:src="@drawable/attach"></ImageView>
-                <ImageView
-                    android:layout_width="20sp"
-                    android:layout_height="25sp"
-                    android:layout_margin="8sp"
-                    android:src="@drawable/camera"></ImageView>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    <EditText
+                        android:id="@+id/msg"
+                        android:layout_width="match_parent"
+                        android:paddingStart="5sp"
+                        android:layout_height="match_parent"
+                        android:hint="Type a message..."
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_edilt"></EditText>
 
-        <ImageView
-            android:id="@+id/send"
-            android:layout_width="5sp"
-            android:layout_margin="5sp"
-            android:layout_height="30sp"
-            android:elevation="10sp"
-            android:layout_gravity="center"
-            android:layout_weight="0.3"
-            android:background="@drawable/send_back"
-            android:backgroundTint="@color/orange"
-            android:src="@drawable/send"></ImageView>
-    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/attach"
+                        android:layout_width="20sp"
+                        android:layout_height="25sp"
+                        android:layout_margin="8sp"
+                        android:src="@drawable/attach"></ImageView>
+                    <ImageView
+                        android:layout_width="20sp"
+                        android:layout_height="25sp"
+                        android:layout_margin="8sp"
+                        android:src="@drawable/camera"></ImageView>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
+            <ImageView
+                android:id="@+id/send"
+                android:layout_width="5sp"
+                android:layout_margin="5sp"
+                android:layout_height="30sp"
+                android:elevation="10sp"
+                android:layout_gravity="center"
+                android:layout_weight="0.3"
+                android:background="@drawable/send_back"
+                android:backgroundTint="@color/orange"
+                android:src="@drawable/send"></ImageView>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/incomingCallLayout"
+        android:background="@color/cardview_dark_background"
+        android:visibility="gone">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="120sp"
+            android:layout_height="120sp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="50sp"
+            android:layout_centerHorizontal="true"
+            app:civ_border_color="@color/darkorange"
+            android:src="@drawable/profile_pic"
+            android:id="@+id/callerprofile" />
+        <TextView
+            android:layout_below="@+id/callerprofile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginTop="10sp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:text="someone is calling"
+            android:id="@+id/incomingNameTV"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:layout_marginBottom="40sp"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/acceptButton"
+                android:layout_weight="1"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:src="@drawable/ic_accept" />
+
+            <ImageView
+                android:layout_width="50sp"
+                android:layout_weight="1"
+                android:layout_height="50sp"
+                android:src="@drawable/ic_reject"
+                android:id="@+id/rejectButton"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/outGoingCallLayout"
+        android:background="@color/cardview_dark_background"
+        android:visibility="gone">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="120sp"
+            android:layout_height="120sp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="50sp"
+            android:layout_centerHorizontal="true"
+            app:civ_border_color="@color/darkorange"
+            android:src="@drawable/profile_pic"
+            android:id="@+id/recieverprofile" />
+        <TextView
+            android:layout_below="@+id/recieverprofile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginTop="10sp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:text="calling..."
+            android:id="@+id/outGoingNameTv"/>
+        <LinearLayout
+            android:gravity="center"
+            android:background="@drawable/curve_background"
+            android:backgroundTint="@android:color/secondary_text_light"
+            android:id="@+id/callControls"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/Callmic_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@color/cardview_dark_background"
+                app:srcCompat="@drawable/ic_baseline_mic_off_24" />
+            <ImageView
+                android:id="@+id/Callvideo_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@color/cardview_dark_background"
+                app:srcCompat="@drawable/ic_baseline_videocam_off_24" />
+            <ImageView
+                android:id="@+id/Callend_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@android:color/holo_red_dark"
+                app:srcCompat="@drawable/ic_baseline_call_end_24" />
+            <ImageView
+                android:id="@+id/Callswitch_camera_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@color/cardview_dark_background"
+                app:srcCompat="@drawable/ic_baseline_cameraswitch_24" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:id="@+id/callLayout"
+        android:visibility="gone"
+        android:layout_height="match_parent"
+        tools:visibility="visible">
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/remote_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/local_view"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:layout_above="@+id/controls"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:elevation="16dp" />
+
+        <LinearLayout
+            android:gravity="center"
+            android:background="@drawable/curve_background"
+            android:backgroundTint="@android:color/secondary_text_light"
+            android:id="@+id/controls"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/mic_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@color/cardview_dark_background"
+                app:srcCompat="@drawable/ic_baseline_mic_off_24" />
+            <ImageView
+                android:id="@+id/video_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@color/cardview_dark_background"
+                app:srcCompat="@drawable/ic_baseline_videocam_off_24" />
+            <ImageView
+                android:id="@+id/end_call_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@android:color/holo_red_dark"
+                app:srcCompat="@drawable/ic_baseline_call_end_24" />
+            <ImageView
+                android:id="@+id/switch_camera_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:background="@drawable/circle_background"
+                app:backgroundTint="@color/cardview_dark_background"
+                app:srcCompat="@drawable/ic_baseline_cameraswitch_24" />
+        </LinearLayout>
+
+    </RelativeLayout>
 </RelativeLayout>

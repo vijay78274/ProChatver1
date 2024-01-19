@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.prochatver1.Adapters.mssege_adpater;
+import com.example.prochatver1.Extras.DataModelType;
 import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.Models.messege;
 import com.example.prochatver1.R;
@@ -40,7 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 
-public class ChatActivity extends AppCompatActivity{
+public class ChatActivity extends AppCompatActivity implements MainRepository.Listener{
 ActivityChatActicityBinding binding;
 mssege_adpater adapter;
 ArrayList<messege> message;
@@ -54,6 +55,8 @@ String reciveruid;
 String Callername;
 String callerImage;
 MainRepository mainRepository;
+private Boolean isCameraMuted = false;
+private Boolean isMicrophoneMuted = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +77,6 @@ MainRepository mainRepository;
         getSupportActionBar().setTitle(name);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         database = FirebaseDatabase.getInstance();
-
         database.getReference().child("chats").child(senderRoom).child("messages")
                         .addValueEventListener(new ValueEventListener() {
                             @Override
@@ -155,6 +157,99 @@ MainRepository mainRepository;
                 // Displaying the popup menu
                 popupMenu.show();
             }
+        });
+        database.getReference().child("users").child(senderUid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    Callername=snapshot.child("name").getValue(String.class);
+                    callerImage=snapshot.child("profileImage").getValue(String.class);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        init();
+    }
+    public void init(){
+        mainRepository = MainRepository.getInstance();
+        binding.floatVideo.setOnClickListener(v -> {
+            mainRepository.sendCallRequest(reciveruid, () -> {
+                Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
+            });
+            binding.outGoingNameTv.setText("Calling "+name);
+            if(recieveImage !=null){
+                Glide.with(this).load(recieveImage).placeholder(R.drawable.profile_pic)
+                        .into(binding.recieverprofile);
+            }
+            binding.chatlayout.setVisibility(View.GONE);
+            binding.outGoingCallLayout.setVisibility(View.VISIBLE);
+        });
+        mainRepository.initLocalView(binding.localView);
+        mainRepository.initRemoteView(binding.remoteView);
+        mainRepository.listener = this;
+        mainRepository.subscribeForLatestEvent(data -> {
+            if (data.getType() == DataModelType.StartCall) {
+                runOnUiThread(() -> {
+                    binding.incomingNameTV.setText(name + " is Calling you");
+                    if( callerImage!=null){
+                        Glide.with(this).load(callerImage).placeholder(R.drawable.profile_pic)
+                                .into(binding.callerprofile);
+                    }
+                    binding.chatlayout.setVisibility(View.GONE);
+                    binding.incomingCallLayout.setVisibility(View.VISIBLE);
+                    binding.acceptButton.setOnClickListener(v -> {
+                        //star the call here
+                        mainRepository.startCall(data.getSender());
+                    });
+                    binding.rejectButton.setOnClickListener(v -> {
+                        Toast.makeText(this,"call rejected",Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ChatActivity.this,MainActivity.class);
+                        startActivity(intent);
+                        finishAffinity();
+                    });
+                });
+            }
+        });
+        binding.CallendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                startActivity(intent);
+                finishAffinity();
+            }
+        });
+        binding.switchCameraButton.setOnClickListener(v -> {
+            mainRepository.switchCamera();
+        });
+
+        binding.micButton.setOnClickListener(v -> {
+            if (isMicrophoneMuted) {
+                binding.micButton.setImageResource(R.drawable.ic_baseline_mic_off_24);
+            } else {
+                binding.micButton.setImageResource(R.drawable.ic_baseline_mic_24);
+            }
+            mainRepository.toggleAudio(isMicrophoneMuted);
+            isMicrophoneMuted = !isMicrophoneMuted;
+        });
+
+        binding.videoButton.setOnClickListener(v -> {
+            if (isCameraMuted) {
+                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_off_24);
+            } else {
+                binding.videoButton.setImageResource(R.drawable.ic_baseline_videocam_24);
+            }
+            mainRepository.toggleVideo(isCameraMuted);
+            isCameraMuted = !isCameraMuted;
+        });
+
+        binding.endCallButton.setOnClickListener(v -> {
+            mainRepository.endCall();
+            finish();
+            webrtcClosed();
         });
     }
     public void imageSent(){
@@ -286,59 +381,29 @@ MainRepository mainRepository;
     public boolean onOptionsItemSelected (@NonNull MenuItem item){
         int id = item.getItemId();
         if (id == R.id.calls) {
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    // Perform background tasks here
-                    Intent intent = new Intent(ChatActivity.this, ConnectingActivity.class);
-                    intent.putExtra("RecieverUid",reciveruid);
-                    startActivity(intent);
-                }
-            });
             return true;
         }
         if(id==R.id.video){
-            database.getReference().child("users").child(senderUid).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        Callername=snapshot.child("name").getValue(String.class);
-                        callerImage=snapshot.child("profileImage").getValue(String.class);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-            mainRepository = MainRepository.getInstance();
-            PermissionX.init(this)
-                    .permissions(android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO)
-                    .request((allGranted, grantedList, deniedList) -> {
-                        if (allGranted) {
-                            mainRepository.login(
-                                    senderUid, getApplicationContext(), () -> {
-                                        Toast.makeText(ChatActivity.this,"calls login",Toast.LENGTH_SHORT).show();
-                                        Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                // Perform background tasks here
-                                                Intent intent = new Intent(ChatActivity.this, MyVideo.class);
-                                                intent.putExtra("callername",Callername);
-                                                intent.putExtra("recieverUid",reciveruid);
-                                                intent.putExtra("callerProfile",callerImage);
-                                                intent.putExtra("recieverProfile",recieveImage);
-                                                intent.putExtra("recievername",name);
-                                                startActivity(intent);
-                                                finishAffinity();
-                                            }
-                                        });
-                                    });
-                        }
-                    });
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void webrtcConnected() {
+        runOnUiThread(()->{
+            binding.incomingCallLayout.setVisibility(View.GONE);
+            binding.outGoingCallLayout.setVisibility(View.GONE);
+            binding.callLayout.setVisibility(View.VISIBLE);
+        });
+    }
+
+    @Override
+    public void webrtcClosed() {
+        binding.chatlayout.setVisibility(View.GONE);
+        runOnUiThread(this::finish);
+        Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+        startActivity(intent);
+        finishAffinity();
     }
 }

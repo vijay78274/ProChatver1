@@ -40,8 +40,6 @@ public class CallActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        checkAudioPermission();
-        checkCameraPermission();
 
         database = FirebaseDatabase.getInstance();
         users = new ArrayList<>();
@@ -104,55 +102,5 @@ public class CallActivity extends AppCompatActivity {
             }
         });
     }
-    private void checkAudioPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission not granted, request it
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.RECORD_AUDIO},
-                    RECORD_AUDIO_PERMISSION_CODE
-            );
-        } else {
-            // Permission already granted
-            // You can proceed with your audio-related functionality
-        }
-    }
-    private void checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission not granted, request it
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.CAMERA},
-                    CAMERA_PERMISSION_CODE
-            );
-        } else {
-            // Permission already granted
-            // You can proceed with camera-related functionality
-        }
-    }
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == RECORD_AUDIO_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Audio permission granted
-                // Proceed with your audio-related functionality
-            } else {
-                // Audio permission denied
-                // Handle the denial, inform the user, or disable features that require audio
-            }
-        }
-        else if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Record audio permission granted
-                // Proceed with audio recording-related functionality
-            } else {
-                // Record audio permission denied
-                // Handle the denial, inform the user, or disable audio recording features
-            }
-        }
-
-    }
 }
