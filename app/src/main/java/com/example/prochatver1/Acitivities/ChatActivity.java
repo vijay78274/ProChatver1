@@ -1,14 +1,19 @@
 package com.example.prochatver1.Acitivities;
 
+import static android.content.Intent.ACTION_OPEN_DOCUMENT;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +41,7 @@ import com.google.firebase.storage.UploadTask;
 import com.permissionx.guolindev.PermissionX;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -144,7 +150,7 @@ private Boolean isMicrophoneMuted = false;
                             imageSent();
                             return true;
                         } else if (id == R.id.document) {
-                            Toast.makeText(getApplicationContext(),"Document",Toast.LENGTH_SHORT).show();
+                            documentSent();
                             return true;
                         } else if (id == R.id.video) {
                             videoSent();
@@ -176,18 +182,6 @@ private Boolean isMicrophoneMuted = false;
     }
     public void init(){
         mainRepository = MainRepository.getInstance();
-        binding.floatVideo.setOnClickListener(v -> {
-            mainRepository.sendCallRequest(reciveruid, () -> {
-                Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
-            });
-            binding.outGoingNameTv.setText("Calling "+name);
-            if(recieveImage !=null){
-                Glide.with(this).load(recieveImage).placeholder(R.drawable.profile_pic)
-                        .into(binding.recieverprofile);
-            }
-            binding.chatlayout.setVisibility(View.GONE);
-            binding.outGoingCallLayout.setVisibility(View.VISIBLE);
-        });
         mainRepository.initLocalView(binding.localView);
         mainRepository.initRemoteView(binding.remoteView);
         mainRepository.listener = this;
@@ -206,6 +200,7 @@ private Boolean isMicrophoneMuted = false;
                         mainRepository.startCall(data.getSender());
                     });
                     binding.rejectButton.setOnClickListener(v -> {
+                        mainRepository.endCall();
                         Toast.makeText(this,"call rejected",Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(ChatActivity.this,MainActivity.class);
                         startActivity(intent);
@@ -217,6 +212,7 @@ private Boolean isMicrophoneMuted = false;
         binding.CallendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mainRepository.endCall();
                 Intent intent = new Intent(ChatActivity.this, MainActivity.class);
                 startActivity(intent);
                 finishAffinity();
@@ -263,6 +259,15 @@ private Boolean isMicrophoneMuted = false;
         intent.setType("video/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent,16);
+    }
+    public void documentSent() {
+        String[] mimeTypes = {"application/msword", "application/pdf", "application/vnd.ms-powerpoint", "application/vnd.ms-excel",  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation"};
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        startActivityForResult(intent, 17);
     }
 
     @Override
@@ -356,7 +361,6 @@ private Boolean isMicrophoneMuted = false;
                                                 lastmsg.put("lasttime",date.getTime());
                                                 database.getReference().child("chats").child(senderRoom).updateChildren(lastmsg);
                                                 database.getReference().child("chats").child(reciverRoom).updateChildren(lastmsg);
-
                                             }
                                         });
                                     }
@@ -367,6 +371,105 @@ private Boolean isMicrophoneMuted = false;
                 }
             }
         }
+        if(requestCode==17){
+            if(data!=null){
+                if(data.getData()!=null){
+                    Uri selectedDoc = data.getData();
+                    Calendar calendar = Calendar.getInstance();
+                    StorageReference reference = storage.getReference().child("chats").child(calendar.getTimeInMillis()+"");
+                    reference.putFile(selectedDoc).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if(task.isSuccessful()){
+                                reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        String filepath = uri.toString();
+                                        String mimeType = getContentResolver().getType(selectedDoc);
+                                        if (isMimeTypeAllowed(mimeType)) {
+                                            String msgtxt = binding.msg.getText().toString();
+                                            Date date = new Date();
+                                            messege message1 = new messege(msgtxt,senderUid,date.getTime());
+                                            message1.setMessage("Document");
+                                            message1.setDocumentUrl(filepath);
+                                            String documentName = getDocumentName(selectedDoc);
+                                            message1.setDocumentName(documentName);
+                                            if(mimeType.equals("application/msword") || mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")){
+                                                message1.setDocumentType("Word");
+                                            }
+                                            else if(mimeType.equals("application/vnd.ms-powerpoint") || mimeType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")){
+                                                message1.setDocumentType("PPT");
+                                            }
+                                            else if(mimeType.equals("application/vnd.ms-excel")){
+                                                message1.setDocumentType("Excel");
+                                            }
+                                            else if(mimeType.equals("application/pdf")){
+                                                message1.setDocumentType("PDF");
+                                            }
+                                            String pushkey = database.getReference().push().getKey();
+                                            HashMap<String, Object> lastmsg = new HashMap<>();
+                                            lastmsg.put("lastmsg",message1.getMessage());
+                                            lastmsg.put("lasttime",date.getTime());
+                                            database.getReference().child("chats").child(senderRoom).updateChildren(lastmsg);
+                                            database.getReference().child("chats").child(reciverRoom).updateChildren(lastmsg);
+                                            database.getReference().child("chats").child(senderRoom).child("messages").child(pushkey).setValue(message1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    database.getReference().child("chats").child(reciverRoom).child("messages").child(pushkey).setValue(message1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                        }
+                                                    });
+                                                    HashMap<String, Object> lastmsg = new HashMap<>();
+                                                    lastmsg.put("lastmsg",message1.getMessage());
+                                                    lastmsg.put("lasttime",date.getTime());
+                                                    database.getReference().child("chats").child(senderRoom).updateChildren(lastmsg);
+                                                    database.getReference().child("chats").child(reciverRoom).updateChildren(lastmsg);
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            Toast.makeText(ChatActivity.this, "Unsupported document type", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+    private String getDocumentName(Uri uri) {
+        String documentName = null;
+        Cursor cursor = null;
+
+        try {
+            cursor = getContentResolver().query(uri, null, null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                int displayNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+
+                // Check if the column exists before retrieving data
+                if (displayNameIndex != -1) {
+                    documentName = cursor.getString(displayNameIndex);
+                } else {
+                    // Handle the case where the DISPLAY_NAME column does not exist
+                    Log.e("getDocumentName", "DISPLAY_NAME column not found in the cursor");
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return documentName;
+    }
+    private boolean isMimeTypeAllowed(String mimeType) {
+        // Check against the allowed MIME types
+        return Arrays.asList("application/msword", "application/pdf", "application/vnd.ms-powerpoint", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation").contains(mimeType);
     }
     @Override
     public boolean onSupportNavigateUp(){
@@ -384,6 +487,16 @@ private Boolean isMicrophoneMuted = false;
             return true;
         }
         if(id==R.id.video){
+            mainRepository.sendCallRequest(reciveruid, () -> {
+                Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
+            });
+            binding.outGoingNameTv.setText("Calling "+name);
+            if(recieveImage !=null){
+                Glide.with(this).load(recieveImage).placeholder(R.drawable.profile_pic)
+                        .into(binding.recieverprofile);
+            }
+            binding.chatlayout.setVisibility(View.GONE);
+            binding.outGoingCallLayout.setVisibility(View.VISIBLE);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -405,5 +518,13 @@ private Boolean isMicrophoneMuted = false;
         Intent intent = new Intent(ChatActivity.this, MainActivity.class);
         startActivity(intent);
         finishAffinity();
+    }
+    @Override
+    protected void onDestroy() {
+        // Release resources associated with local and remote surfaces
+        mainRepository.releaseLocalView(binding.localView);
+        mainRepository.releaseRemoteView(binding.remoteView);
+
+        super.onDestroy();
     }
 }

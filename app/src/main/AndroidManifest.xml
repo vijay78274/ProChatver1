@@ -21,8 +21,8 @@
 
     <application
         android:allowBackup="false"
-        android:fullBackupContent="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="VS chat"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -30,7 +30,7 @@
         android:theme="@style/Theme.ProChatVer1"
         tools:targetApi="31">
         <activity
-            android:name=".Acitivities.ConnectingActivity"
+            android:name=".Acitivities.DocumentViewer"
             android:exported="false" />
         <activity
             android:name=".Acitivities.MyVideo"

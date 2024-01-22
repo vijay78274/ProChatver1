@@ -98,6 +98,12 @@ public class MainRepository implements WebRTCClient.Listener {
         webRTCClient.initRemoteSurfaceView(view);
         this.remoteView = view;
     }
+    public void releaseLocalView(SurfaceViewRenderer view) {
+        view.release();
+    }
+    public void releaseRemoteView(SurfaceViewRenderer view) {
+        view.release();
+    }
 
     public void startCall(String target){
         webRTCClient.call(target);

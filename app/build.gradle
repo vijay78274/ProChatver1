@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.prochatver1"
-        minSdk 24
+        minSdk 26 //minSdk 24
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -32,6 +32,9 @@ android {
 }
 
 dependencies {
+    implementation 'org.apache.poi:poi:5.1.0'
+    implementation 'org.apache.poi:poi-ooxml:5.1.0'
+    implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1'
     implementation 'com.guolindev.permissionx:permissionx:1.6.1'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.mesibo.api:webrtc:1.0.5'

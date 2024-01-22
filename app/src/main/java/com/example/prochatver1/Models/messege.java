@@ -4,6 +4,34 @@ public class messege {
     public String messageId;
     public String message;
     public String senderId;
+    public String documentUrl;
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public String getDocumentName() {
+        return documentName;
+    }
+
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
+    }
+
+    public String documentName;
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
+    }
+
+    public String documentType;
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
+    }
 
     public String getVideoThumbnail() {
         return videoThumbnail;

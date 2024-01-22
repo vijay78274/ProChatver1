@@ -22,15 +22,6 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/float_video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/video_orange"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="100sp" />
-
         <LinearLayout
             android:id="@+id/msgbox"
             android:layout_width="match_parent"

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.example.prochatver1.Acitivities.DocumentViewer;
 import com.example.prochatver1.Acitivities.FullVideoActivity;
 import com.example.prochatver1.Acitivities.ViewerActivity;
 import com.example.prochatver1.Models.messege;
@@ -81,6 +82,27 @@ public class mssege_adpater extends RecyclerView.Adapter{
                 viewHolder.binding.sendmsg.setVisibility(View.GONE);
                 Glide.with(context).load(message.getVideoThumbnail()).into(viewHolder.binding.video);
             }
+            if(message.getMessage().equals("Document")){
+                viewHolder.binding.document.setVisibility(View.VISIBLE);
+                viewHolder.binding.sendmsg.setVisibility(View.GONE);
+                viewHolder.binding.textDocumentName.setText(message.getDocumentName());
+                if(message.getDocumentType().equals("Word")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.doc);
+                    viewHolder.binding.textDocumentType.setText("Word");
+                }
+                else if(message.getDocumentType().equals("PPT")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.ppt);
+                    viewHolder.binding.textDocumentType.setText("PPT");
+                }
+                else if(message.getDocumentType().equals("Excel")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.xls);
+                    viewHolder.binding.textDocumentType.setText("Excel");
+                }
+                else if(message.getDocumentType().equals("PDF")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.pdf);
+                    viewHolder.binding.textDocumentType.setText("PDF");
+                }
+            }
             viewHolder.binding.sendmsg.setText(message.getMessage());
             if(message.getFeeling()>=0){
                 viewHolder.binding.feeling.setImageResource(reaction[(int) message.getFeeling()]);
@@ -103,6 +125,14 @@ public class mssege_adpater extends RecyclerView.Adapter{
                 public void onClick(View v) {
                     Intent intent = new Intent(context, FullVideoActivity.class);
                     intent.putExtra("videoUrl",message.getVideoUrl());
+                    context.startActivity(intent);
+                }
+            });
+            viewHolder.binding.document.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, DocumentViewer.class);
+                    intent.putExtra("documentUrl",message.getDocumentUrl());
                     context.startActivity(intent);
                 }
             });
@@ -129,6 +159,27 @@ public class mssege_adpater extends RecyclerView.Adapter{
                 viewHolder.binding.recMsg.setVisibility(View.GONE);
                 Glide.with(context).load(message.getVideoThumbnail()).into(viewHolder.binding.video);
             }
+            if(message.getMessage().equals("Document")){
+                viewHolder.binding.document.setVisibility(View.VISIBLE);
+                viewHolder.binding.recMsg.setVisibility(View.GONE);
+                viewHolder.binding.textDocumentName.setText(message.getDocumentName());
+                if(message.getDocumentType().equals("Word")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.doc);
+                    viewHolder.binding.textDocumentType.setText("Word");
+                }
+                else if(message.getDocumentType().equals("PPT")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.ppt);
+                    viewHolder.binding.textDocumentType.setText("PPT");
+                }
+                else if(message.getDocumentType().equals("Excel")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.xls);
+                    viewHolder.binding.textDocumentType.setText("Excel");
+                }
+                else if(message.getDocumentType().equals("PDF")){
+                    viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.pdf);
+                    viewHolder.binding.textDocumentType.setText("PDF");
+                }
+            }
             if(message.getFeeling()>=0){
                 viewHolder.binding.feeling.setImageResource(reaction[(int) message.getFeeling()]);
                 viewHolder.binding.feeling.setVisibility(View.VISIBLE);
@@ -149,6 +200,15 @@ public class mssege_adpater extends RecyclerView.Adapter{
                 public void onClick(View v) {
                     Intent intent = new Intent(context, FullVideoActivity.class);
                     intent.putExtra("videoUrl",message.getVideoUrl());
+                    context.startActivity(intent);
+                }
+            });
+            viewHolder.binding.document.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, DocumentViewer.class);
+                    intent.putExtra("documentUrl",message.getDocumentUrl());
+                    intent.putExtra("documentType",message.getDocumentType());
                     context.startActivity(intent);
                 }
             });
