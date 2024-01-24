@@ -182,12 +182,12 @@ private Boolean isMicrophoneMuted = false;
     }
     public void init(){
         mainRepository = MainRepository.getInstance();
-        mainRepository.initLocalView(binding.localView);
-        mainRepository.initRemoteView(binding.remoteView);
         mainRepository.listener = this;
         mainRepository.subscribeForLatestEvent(data -> {
             if (data.getType() == DataModelType.StartCall) {
                 runOnUiThread(() -> {
+                    mainRepository.initLocalView(binding.localView);
+                    mainRepository.initRemoteView(binding.remoteView);
                     binding.incomingNameTV.setText(name + " is Calling you");
                     if( callerImage!=null){
                         Glide.with(this).load(callerImage).placeholder(R.drawable.profile_pic)
@@ -201,6 +201,7 @@ private Boolean isMicrophoneMuted = false;
                     });
                     binding.rejectButton.setOnClickListener(v -> {
                         mainRepository.endCall();
+                        onDestroy();
                         Toast.makeText(this,"call rejected",Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(ChatActivity.this,MainActivity.class);
                         startActivity(intent);
@@ -213,6 +214,7 @@ private Boolean isMicrophoneMuted = false;
             @Override
             public void onClick(View v) {
                 mainRepository.endCall();
+                onDestroy();
                 Intent intent = new Intent(ChatActivity.this, MainActivity.class);
                 startActivity(intent);
                 finishAffinity();
@@ -292,6 +294,8 @@ private Boolean isMicrophoneMuted = false;
                                         messege message1 = new messege(msgtxt,senderUid,date.getTime());
                                         message1.setMessage("Photo");
                                         message1.setImageUrl(filepath);
+                                        String document = getDocumentName(selectedimg);
+                                        message1.setDocumentName(document);
                                         String pushkey = database.getReference().push().getKey();
                                         HashMap<String, Object> lastmsg = new HashMap<>();
                                         lastmsg.put("lastmsg",message1.getMessage());
@@ -342,6 +346,8 @@ private Boolean isMicrophoneMuted = false;
                                         message1.setMessage("Video");
                                         message1.setVideoUrl(filepath);
                                         message1.setVideoThumbnail(filepath);
+                                        String doucument = getDocumentName(selectedVideo);
+                                        message1.setDocumentName(doucument);
                                         String pushkey = database.getReference().push().getKey();
                                         HashMap<String, Object> lastmsg = new HashMap<>();
                                         lastmsg.put("lastmsg",message1.getMessage());
@@ -487,6 +493,8 @@ private Boolean isMicrophoneMuted = false;
             return true;
         }
         if(id==R.id.video){
+            mainRepository.initLocalView(binding.localView);
+            mainRepository.initRemoteView(binding.remoteView);
             mainRepository.sendCallRequest(reciveruid, () -> {
                 Toast.makeText(this, "couldn't find the target", Toast.LENGTH_SHORT).show();
             });

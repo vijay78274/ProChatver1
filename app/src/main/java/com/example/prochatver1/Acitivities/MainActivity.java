@@ -13,6 +13,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.prochatver1.MainRepository;
 import com.example.prochatver1.R;
 import com.example.prochatver1.Models.Users;
@@ -44,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar();
+        Glide.init(this, new GlideBuilder().setDefaultRequestOptions(new RequestOptions().format(DecodeFormat.PREFER_ARGB_8888)));
         if (!Network.isNetworkAvailable(this)) {
             showNetworkError();
         }

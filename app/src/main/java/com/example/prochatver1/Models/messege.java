@@ -6,6 +6,16 @@ public class messege {
     public String senderId;
     public String documentUrl;
 
+    public Boolean getDownload() {
+        return download;
+    }
+
+    public void setDownload(Boolean download) {
+        this.download = download;
+    }
+
+    public Boolean download;
+
     public String getDocumentType() {
         return documentType;
     }

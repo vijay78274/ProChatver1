@@ -14,30 +14,48 @@
         android:background="@drawable/sender_back"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/image"
-            android:layout_margin="5sp"
-            android:layout_width="200sp"
-            android:src="@drawable/profile_pic"
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_height="200sp" />
+            android:id="@+id/imageFrame">
+            <ImageView
+                android:id="@+id/image"
+                android:layout_margin="5sp"
+                android:layout_width="200sp"
+                android:src="@drawable/profile_pic"
+                android:layout_height="200sp" />
+            <Button
+                android:id="@+id/downloadImage"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:background="@drawable/baseline_arrow_circle_down_24"
+                android:layout_gravity="bottom|end"></Button>
+        </FrameLayout>
 
         <FrameLayout
             android:id="@+id/frame"
             android:layout_width="200sp"
             android:layout_height="200sp"
             android:visibility="gone">
+            <Button
+                android:id="@+id/downloadVideo"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:background="@drawable/baseline_arrow_circle_down_24"
+                android:layout_gravity="bottom|end"></Button>
             <ImageView
                 android:id="@id/video"
                 android:layout_width="200sp"
                 android:layout_height="200sp"
                 android:src="@drawable/profile_pic" />
+
             <Button
                 android:id="@+id/button"
                 android:layout_width="100sp"
                 android:layout_height="100sp"
                 android:layout_gravity="center"
-                android:background="@drawable/baseline_play_arrow_24"></Button>
+                android:background="@drawable/baseline_play_arrow_24" />
         </FrameLayout>
         <TextView
             android:id="@+id/sendmsg"
@@ -56,48 +74,60 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
-        <RelativeLayout
+        <FrameLayout
             android:visibility="gone"
-            android:id="@+id/document"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:id="@+id/documentFrame">
 
-            <ImageView
-                android:id="@+id/imageDocumentIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/file"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true" />
-
-            <LinearLayout
-                android:id="@+id/layoutDocumentInfo"
+            <RelativeLayout
+                android:id="@+id/document"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/imageDocumentIcon"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp">
+                android:padding="8dp">
 
-                <TextView
-                    android:id="@+id/textDocumentName"
+                <ImageView
+                    android:id="@+id/imageDocumentIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/file"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true" />
+
+                <LinearLayout
+                    android:id="@+id/layoutDocumentInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Document Name"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/black" />
+                    android:layout_toEndOf="@id/imageDocumentIcon"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
 
-                <TextView
-                    android:id="@+id/textDocumentType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Document Type"
-                    android:textSize="12sp"
-                    android:textColor="@color/black" />
+                    <TextView
+                        android:id="@+id/textDocumentName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Document Name"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/black" />
 
-            </LinearLayout>
-        </RelativeLayout>
+                    <TextView
+                        android:id="@+id/textDocumentType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Document Type"
+                        android:textSize="12sp"
+                        android:textColor="@color/black" />
 
+                </LinearLayout>
+
+            </RelativeLayout>
+            <Button
+                android:id="@+id/downloadDoc"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:background="@drawable/baseline_arrow_circle_down_24"
+                android:layout_gravity="bottom|end"></Button>
+        </FrameLayout>
     </LinearLayout>
 
     <ImageView
