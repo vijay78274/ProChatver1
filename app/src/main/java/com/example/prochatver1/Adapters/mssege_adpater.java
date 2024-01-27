@@ -2,39 +2,30 @@ package com.example.prochatver1.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import android.media.MediaPlayer;
 import android.os.Environment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.example.prochatver1.Acitivities.AudioPlay;
 import com.example.prochatver1.Acitivities.DocumentViewer;
-import com.example.prochatver1.Acitivities.Download;
 import com.example.prochatver1.Acitivities.DownloadService;
 import com.example.prochatver1.Acitivities.FullVideoActivity;
 import com.example.prochatver1.Acitivities.ViewerActivity;
+import com.example.prochatver1.Acitivities.toolOptions;
 import com.example.prochatver1.Models.messege;
 import com.example.prochatver1.R;
 import com.example.prochatver1.databinding.ItemRecieveBinding;
 import com.example.prochatver1.databinding.ItemsendBinding;
-import com.github.pgreze.reactions.ReactionPopup;
-import com.github.pgreze.reactions.ReactionsConfig;
-import com.github.pgreze.reactions.ReactionsConfigBuilder;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class mssege_adpater extends RecyclerView.Adapter{
@@ -45,6 +36,8 @@ public class mssege_adpater extends RecyclerView.Adapter{
     ArrayList<String> imageUrls = new ArrayList<>();
     String senderRoom;
     String reciverRoom;
+    private MediaPlayer mediaPlayer;
+    private boolean isPlaying = false;
     public mssege_adpater(Context context, ArrayList<messege> messages, String senderRoom, String reciverRoom) {
         this.context = context;
         this.messages = messages;
@@ -78,28 +71,27 @@ public class mssege_adpater extends RecyclerView.Adapter{
         if(holder.getClass() == sendViewHolder.class){
             sendViewHolder viewHolder = (sendViewHolder)holder;
             if(message.getMessage().equals("Photo")){
+                String fileName = message.getDocumentName();
+                boolean isImageDownloaded = isImageDownloaded(fileName);
                 viewHolder.binding.imageFrame.setVisibility(View.VISIBLE);
+                viewHolder.binding.downloadImage.setVisibility(isImageDownloaded ? View.GONE : View.VISIBLE);
                 viewHolder.binding.sendmsg.setVisibility(View.GONE);
                 Glide.with(context).load(message.getImageUrl()).into(viewHolder.binding.image);
                 imageUrls.add(message.getImageUrl());
             }
             if(message.getMessage().equals("Video")){
                 viewHolder.binding.frame.setVisibility(View.VISIBLE);
-                if(message.getDownload().equals(true)){
-                    viewHolder.binding.downloadVideo.setVisibility(View.GONE);
-                }
+                String fileName = message.getDocumentName();
+                boolean isVideoDownloaded = isVideoDownloaded(fileName);
+                viewHolder.binding.downloadVideo.setVisibility(isVideoDownloaded? View.GONE : View.VISIBLE);
                 viewHolder.binding.sendmsg.setVisibility(View.GONE);
                 Glide.with(context).load(message.getVideoThumbnail()).into(viewHolder.binding.video);
             }
             if(message.getMessage().equals("Document")){
+                viewHolder.binding.documentFrame.setVisibility(View.VISIBLE);
                 String fileName = message.getDocumentName();
                 boolean isFileDownloaded = isFileDownloaded(fileName);
-                viewHolder.binding.documentFrame.setVisibility(View.VISIBLE);
-                if (isFileDownloaded) {
-                    viewHolder.binding.downloadDoc.setVisibility(View.GONE);
-                } else {
-                    viewHolder.binding.downloadDoc.setVisibility(View.VISIBLE);
-                }
+                viewHolder.binding.downloadDoc.setVisibility(isFileDownloaded ? View.GONE : View.VISIBLE);
                 viewHolder.binding.sendmsg.setVisibility(View.GONE);
                 viewHolder.binding.textDocumentName.setText(message.getDocumentName());
                 if(message.getDocumentType().equals("Word")){
@@ -118,6 +110,14 @@ public class mssege_adpater extends RecyclerView.Adapter{
                     viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.pdf);
                     viewHolder.binding.textDocumentType.setText("PDF");
                 }
+            }
+            if(message.getMessage().equals("Audio")){
+                viewHolder.binding.audioFrame.setVisibility(View.VISIBLE);
+                viewHolder.binding.sendmsg.setVisibility(View.GONE);
+                String fileName = message.getDocumentName();
+                boolean isAudioDownloaded = isAudioDownloaded(fileName);
+                viewHolder.binding.audioName.setText(message.getDocumentName());
+                viewHolder.binding.downloadAudio.setVisibility(isAudioDownloaded? View.GONE : View.VISIBLE);
             }
             viewHolder.binding.sendmsg.setText(message.getMessage());
             if(message.getFeeling()>=0){
@@ -156,17 +156,29 @@ public class mssege_adpater extends RecyclerView.Adapter{
             viewHolder.binding.document.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+                    Intent intent = new Intent(context, toolOptions.class);
+                    intent.putExtra("documentUrl",message.getDocumentUrl());
+                    intent.putExtra("documentType",message.getDocumentType());
+                    context.startActivity(intent);
 
                     return false;
+                }
+            });
+            viewHolder.binding.audio.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, AudioPlay.class);
+                    intent.putExtra("documentUrl",message.getAudioUrl());
+                    context.startActivity(intent);
                 }
             });
             viewHolder.binding.downloadDoc.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, Download.class);
+                    Intent intent = new Intent(context, DownloadService.class);
                     intent.putExtra("type",message.getMessage());
-                    intent.putExtra("docurl",message.getDocumentUrl());
-                    intent.putExtra("docname",message.getDocumentName());
+                    intent.putExtra("fileUrl",message.getDocumentUrl());
+                    intent.putExtra("fileName",message.getDocumentName());
                     context.startService(intent);
                 }
             });
@@ -175,8 +187,8 @@ public class mssege_adpater extends RecyclerView.Adapter{
                 public void onClick(View view) {
                     Intent intent = new Intent(context, DownloadService.class);
                     intent.putExtra("type",message.getMessage());
-                    intent.putExtra("docurl",message.getDocumentUrl());
-                    intent.putExtra("docname",message.getDocumentName());
+                    intent.putExtra("fileUrl",message.getVideoUrl());
+                    intent.putExtra("fileName",message.getDocumentName());
                     context.startService(intent);
                 }
             });
@@ -186,6 +198,16 @@ public class mssege_adpater extends RecyclerView.Adapter{
                     Intent intent = new Intent(context, DownloadService.class);
                     intent.putExtra("type",message.getMessage());
                     intent.putExtra("fileUrl",message.getImageUrl());
+                    intent.putExtra("fileName",message.getDocumentName());
+                    context.startService(intent);
+                }
+            });
+            viewHolder.binding.downloadAudio.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, DownloadService.class);
+                    intent.putExtra("type",message.getMessage());
+                    intent.putExtra("fileUrl",message.getAudioUrl());
                     intent.putExtra("fileName",message.getDocumentName());
                     context.startService(intent);
                 }
@@ -203,28 +225,28 @@ public class mssege_adpater extends RecyclerView.Adapter{
             viewHolder.binding.recMsg.setText(message.getMessage());
 
             if(message.getMessage().equals("Photo")){
+                String fileName = message.getDocumentName();
+                boolean isImageDownloaded = isImageDownloaded(fileName);
                 viewHolder.binding.imageFrame.setVisibility(View.VISIBLE);
                 viewHolder.binding.recMsg.setVisibility(View.GONE);
-                if(message.getDownload().equals(true)){
-                    viewHolder.binding.downloadImage.setVisibility(View.GONE);
-                }
+                viewHolder.binding.downloadImage.setVisibility(isImageDownloaded ? View.GONE : View.VISIBLE);
                 Glide.with(context).load(message.getImageUrl()).into(viewHolder.binding.image);
                 imageUrls.add(message.getImageUrl());
             }
             if(message.getMessage().equals("Video")){
+                String fileName = message.getDocumentName();
+                boolean isVideoDownloaded = isVideoDownloaded(fileName);
                 viewHolder.binding.frame.setVisibility(View.VISIBLE);
                 viewHolder.binding.recMsg.setVisibility(View.GONE);
-                if(message.getDownload().equals(true)){
-                    viewHolder.binding.downloadVideo.setVisibility(View.GONE);
-                }
+                viewHolder.binding.downloadVideo.setVisibility(isVideoDownloaded ? View.GONE : View.VISIBLE);
                 Glide.with(context).load(message.getVideoThumbnail()).into(viewHolder.binding.video);
             }
             if(message.getMessage().equals("Document")){
+                String fileName = message.getDocumentName();
+                boolean isFileDownloaded = isFileDownloaded(fileName);
                 viewHolder.binding.documentFrame.setVisibility(View.VISIBLE);
                 viewHolder.binding.recMsg.setVisibility(View.GONE);
-                if(message.getDownload().equals(true)){
-                    viewHolder.binding.downloadDoc.setVisibility(View.GONE);
-                }
+                viewHolder.binding.downloadDoc.setVisibility(isFileDownloaded ? View.GONE : View.VISIBLE);
                 viewHolder.binding.textDocumentName.setText(message.getDocumentName());
                 if(message.getDocumentType().equals("Word")){
                     viewHolder.binding.imageDocumentIcon.setImageResource(R.drawable.doc);
@@ -243,6 +265,15 @@ public class mssege_adpater extends RecyclerView.Adapter{
                     viewHolder.binding.textDocumentType.setText("PDF");
                 }
             }
+            if(message.getMessage().equals("Audio")){
+                viewHolder.binding.audioFrame.setVisibility(View.VISIBLE);
+                viewHolder.binding.recMsg.setVisibility(View.GONE);
+                String fileName = message.getDocumentName();
+                boolean isAudioDownloaded = isAudioDownloaded(fileName);
+                viewHolder.binding.audioName.setText(message.getDocumentName());
+                viewHolder.binding.downloadAudio.setVisibility(isAudioDownloaded? View.GONE : View.VISIBLE);
+            }
+
             if(message.getFeeling()>=0){
                 viewHolder.binding.feeling.setImageResource(reaction[(int) message.getFeeling()]);
                 viewHolder.binding.feeling.setVisibility(View.VISIBLE);
@@ -278,20 +309,22 @@ public class mssege_adpater extends RecyclerView.Adapter{
             viewHolder.binding.document.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+                    Intent intent = new Intent(context, toolOptions.class);
+                    intent.putExtra("documentUrl",message.getDocumentUrl());
+                    intent.putExtra("documentType",message.getDocumentType());
+                    context.startActivity(intent);
                     return false;
                 }
             });
-            viewHolder.binding.downloadDoc.setOnClickListener(new View.OnClickListener() {
+            viewHolder.binding.audio.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, Download.class);
-                    intent.putExtra("type",message.getMessage());
-                    intent.putExtra("docurl",message.getDocumentUrl());
-                    intent.putExtra("docname",message.getDocumentName());
-                    context.startService(intent);
+                    Intent intent = new Intent(context, AudioPlay.class);
+                    intent.putExtra("documentUrl",message.getAudioUrl());
+                    context.startActivity(intent);
                 }
             });
-            viewHolder.binding.downloadVideo.setOnClickListener(new View.OnClickListener() {
+            viewHolder.binding.downloadDoc.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(context, DownloadService.class);
@@ -301,12 +334,32 @@ public class mssege_adpater extends RecyclerView.Adapter{
                     context.startService(intent);
                 }
             });
+            viewHolder.binding.downloadVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, DownloadService.class);
+                    intent.putExtra("type",message.getMessage());
+                    intent.putExtra("fileUrl",message.getVideoUrl());
+                    intent.putExtra("fileName",message.getDocumentName());
+                    context.startService(intent);
+                }
+            });
             viewHolder.binding.downloadImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(context, DownloadService.class);
                     intent.putExtra("type",message.getMessage());
-                    intent.putExtra("fileUrl",message.getDocumentUrl());
+                    intent.putExtra("fileUrl",message.getImageUrl());
+                    intent.putExtra("fileName",message.getDocumentName());
+                    context.startService(intent);
+                }
+            });
+            viewHolder.binding.downloadAudio.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, DownloadService.class);
+                    intent.putExtra("type",message.getMessage());
+                    intent.putExtra("fileUrl",message.getAudioUrl());
                     intent.putExtra("fileName",message.getDocumentName());
                     context.startService(intent);
                 }
@@ -354,7 +407,28 @@ public class mssege_adpater extends RecyclerView.Adapter{
     }
     private boolean isFileDownloaded(String fileName) {
         File vschatFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "VSchat");
-        File documentSubfolder = new File(vschatFolder, "document");
+        File documentSubfolder = new File(vschatFolder, "Documents");
+        File localFile = new File(documentSubfolder, fileName);
+
+        return localFile.exists();
+    }
+    private boolean isVideoDownloaded(String fileName){
+        File vschatFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "VSchat");
+        File documentSubfolder = new File(vschatFolder, "Videos");
+        File localFile = new File(documentSubfolder, fileName);
+
+        return localFile.exists();
+    }
+    private boolean isImageDownloaded(String fileName){
+        File vschatFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "VSchat");
+        File documentSubfolder = new File(vschatFolder, "Images");
+        File localFile = new File(documentSubfolder, fileName);
+
+        return localFile.exists();
+    }
+    private boolean isAudioDownloaded(String fileName){
+        File vschatFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "VSchat");
+        File documentSubfolder = new File(vschatFolder, "Audio");
         File localFile = new File(documentSubfolder, fileName);
 
         return localFile.exists();
