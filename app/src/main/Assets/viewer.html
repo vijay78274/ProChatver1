@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Viewer</title>
+    <link rel="stylesheet" href="file:///android_asset/viewer.css">
+</head>
+<body>
+<!-- Placeholder element where the document will be displayed -->
+<div id="viewer"></div>
+
+<!-- Include the Viewer.js library -->
+<script src="file:///android_asset/viewer.js"></script>
+<script>
+        console.log("Viewer.html loaded");
+
+        // Ensure the DOM is fully loaded before initializing Viewer
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM content loaded");
+
+            // Get the URL of the document from the query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const documentUrl = urlParams.get('documentUrl');
+
+            console.log("Document URL:", documentUrl);
+
+            // Initialize the Viewer with the 'viewer' element
+            console.log("Starting Viewer.js initialization");
+            const viewer = new Viewer(document.getElementById('viewer'), {
+                inline: true, // Display the document inline
+                viewed() {
+                    if(docxUrl) {
+                    viewer.view("Hello", 'Document Title');
+                    }else {
+                    console.error("No 'documentUrl' provided.");
+                    }
+                    console.log("Viewer viewed event");
+                },
+            });
+        });
+    </script>
+</body>
+</html>

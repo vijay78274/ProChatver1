@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="?android:windowBackground"
+    android:layout_gravity="center"
+    tools:context=".Acitivities.AudioPlay">
+
+    <RelativeLayout
+        android:layout_marginStart="15sp"
+        android:layout_marginEnd="15sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:background="@drawable/rectangel_border"
+        android:layout_gravity="center">
+        <SeekBar
+            android:progressBackgroundTint="@color/orange"
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/durationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/seekBar"
+            android:layout_marginTop="10dp"
+            android:text="0:00"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/playPauseButton"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/durationTextView"
+            android:layout_marginBottom="15sp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/play" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

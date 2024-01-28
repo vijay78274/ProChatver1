@@ -5,4 +5,6 @@
     <color name="orange">#FF8C00</color>
     <color name="darkorange">#ff7f00 </color>
     <color name="teal_700" >#00796B</color>
+    <color name="colorSeekBarBackground">#DDDDDD</color>
+    <color name="colorSeekBarProgress">#00FF00</color>
 </resources>
