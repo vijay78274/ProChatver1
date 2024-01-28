@@ -1,26 +1,22 @@
 package com.example.prochatver1.Acitivities;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.prochatver1.R;
 import com.example.prochatver1.databinding.ActivityDocumentViewerBinding;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.github.barteksc.pdfviewer.util.FitPolicy;
+
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -34,9 +30,6 @@ String documentUrl;
 String documentType;
 Uri uri;
 ActivityDocumentViewerBinding binding;
-FirebaseStorage storage;
-StorageReference storageRef;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,69 +39,98 @@ StorageReference storageRef;
         documentUrl = getIntent().getStringExtra("documentUrl");
         documentType = getIntent().getStringExtra("documentType");
         uri = Uri.parse(documentUrl);
-        binding.webView.clearCache(true);
         if(documentType.equals("Word")){
-            WebSettings webSettings = binding.webView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            webSettings.setAllowFileAccess(true);
-            String htmlPath = "file:///android_asset/viewer.html?documentUrl=" + documentUrl;
-            binding.webView.loadUrl(htmlPath);
-            openFile(htmlPath);
+            openDocument(documentUrl,"application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+//            Intent intent = new Intent(Intent.ACTION_VIEW);
+//            intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//
+//            // Verify that there is an app to handle the intent
+//            if (intent.resolveActivity(getPackageManager()) != null) {
+//                startActivity(intent);
+//            } else {
+//                // Handle the case where there is no app to handle DOCX files
+//
+//            }
         }
         else if(documentType.equals("PDF")){
             openDocument(documentUrl,"application/pdf");
+//            Intent intent = new Intent(Intent.ACTION_VIEW);
+//            intent.setDataAndType(uri, "application/pdf");
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//
+//            // Verify that there is an app to handle the intent
+//            if (intent.resolveActivity(getPackageManager()) != null) {
+//                startActivity(intent);
+//            } else {
+//                // Handle the case where there is no app to handle DOCX files
+//                binding.webView.setVisibility(View.GONE);
+//                binding.pdfView.setVisibility(View.VISIBLE);
+//                displayPdfFromUrl(documentUrl);
+//            }
         }
         else if(documentType.equals("Excel")){
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
+            // Verify that there is an app to handle the intent
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+//                HttpURLConnection connection = (HttpURLConnection) documentUrl.openConnection();
+//                try {
+//                    connection.connect();
+//                    InputStream inputStream = connection.getInputStream();
+//                    XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+                // Handle the case where there is no app to handle Excel files
+            }
         }
         else if(documentType.equals("PPT")){
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
+            // Verify that there is an app to handle the intent
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                // Handle the case where there is no app to handle PPTX files
+                WebSettings webSettings = binding.webView.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+
+                binding.webView.setWebViewClient(new WebViewClient());
+
+                binding.webView.loadUrl(documentUrl);
+            }
         }
     }
-    private void openFile(String htmlPath){
-        binding.webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Log.d("WebViewConsole", consoleMessage.message());
-                return true;
-            }
-        });
-        binding.webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                Log.d("WebView", "Page finished loading: " + url);
-
-                // Inject JavaScript code to check if Viewer.js is loaded
-                binding.webView.evaluateJavascript(
-                        "javascript: " +
-                                "if (typeof Viewer !== 'undefined') {" +
-                                "   console.log('Viewer.js is loaded');" +
-                                "} else {" +
-                                "   console.log('Viewer.js is NOT loaded');" +
-                                "}",
-                        null
-                );
-            }
-
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                Log.e("WebView", "Error loading page: " + error.getDescription());
-            }
-        });
-    }
     private void openDocument(String url, String type) {
+        // Create an intent with the ACTION_VIEW action
         Intent intent = new Intent(Intent.ACTION_VIEW);
 
+        // Set the data and type for the intent
         intent.setDataAndType(Uri.parse(url), type);
 
+        // Add flags to handle different scenarios
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try {
-
+            // Start the activity with the intent
             Intent chooserIntent = Intent.createChooser(intent, "Open PDF with");
+
+            // Verify that the intent will resolve to an activity
             if (intent.resolveActivity(getPackageManager()) != null) {
+                // Start the activity with the chooser intent
                 startActivity(chooserIntent);
             } else {
+                // Handle the case where no app can handle the PDF
+                // This could occur if there are no PDF viewer apps installed
+                // or if the device doesn't support opening PDFs
+                // You might want to provide user feedback in this case
                 binding.webView.setVisibility(View.GONE);
                 binding.pdfView.setVisibility(View.VISIBLE);
                 displayPdfFromUrl(documentUrl);
@@ -137,6 +159,7 @@ StorageReference storageRef;
             }
             return inputStream;
         }
+
         @Override
         protected void onPostExecute(InputStream inputStream) {
             binding.pdfView.fromStream(inputStream).load();

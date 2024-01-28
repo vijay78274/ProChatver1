@@ -1,84 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <RelativeLayout
-        android:id="@+id/chatlayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@drawable/light"
-        android:visibility="visible">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/msgbox"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" />
-
-        <LinearLayout
-            android:id="@+id/msgbox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="horizontal">
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_weight="1"
-                app:cardCornerRadius="20sp"
-                android:elevation="10sp"
-                android:layout_height="50sp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="start"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/msg"
-                        android:layout_width="match_parent"
-                        android:paddingStart="5sp"
-                        android:layout_height="match_parent"
-                        android:hint="Type a message..."
-                        android:layout_weight="1"
-                        android:background="@drawable/custom_edilt"></EditText>
-
-                    <ImageView
-                        android:id="@+id/attach"
-                        android:layout_width="20sp"
-                        android:layout_height="25sp"
-                        android:layout_margin="8sp"
-                        android:src="@drawable/attach"></ImageView>
-                    <ImageView
-                        android:layout_width="20sp"
-                        android:layout_height="25sp"
-                        android:layout_margin="8sp"
-                        android:src="@drawable/camera"></ImageView>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <ImageView
-                android:id="@+id/send"
-                android:layout_width="5sp"
-                android:layout_margin="5sp"
-                android:layout_height="30sp"
-                android:elevation="10sp"
-                android:layout_gravity="center"
-                android:layout_weight="0.3"
-                android:background="@drawable/send_back"
-                android:backgroundTint="@color/orange"
-                android:src="@drawable/send"></ImageView>
-        </LinearLayout>
-
-    </RelativeLayout>
+    android:keepScreenOn="true"
+    tools:context=".Acitivities.MyVideo">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -118,6 +45,8 @@
                 android:layout_weight="1"
                 android:layout_width="50sp"
                 android:layout_height="50sp"
+                android:scaleX="0"
+                android:scaleY="0"
                 android:src="@drawable/ic_accept" />
 
             <ImageView
@@ -129,7 +58,6 @@
         </LinearLayout>
 
     </RelativeLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -211,8 +139,27 @@
                 app:backgroundTint="@color/cardview_dark_background"
                 app:srcCompat="@drawable/ic_baseline_cameraswitch_24" />
         </LinearLayout>
-    </RelativeLayout>
 
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/incomingCallLayout"
+        android:id="@+id/whoToCallLayout">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="who to call ?"
+            android:layout_margin="30dp"
+            android:id="@+id/targetUserNameEt"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@id/targetUserNameEt"
+            android:layout_marginHorizontal="30dp"
+            android:text="call"
+            android:id="@+id/callBtn"/>
+    </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:id="@+id/callLayout"
@@ -292,4 +239,6 @@
         </LinearLayout>
 
     </RelativeLayout>
+
+
 </RelativeLayout>

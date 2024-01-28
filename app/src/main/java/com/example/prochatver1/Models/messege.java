@@ -6,16 +6,6 @@ public class messege {
     public String senderId;
     public String documentUrl;
 
-    public String getAudioUrl() {
-        return audioUrl;
-    }
-
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
-    }
-
-    public String audioUrl;
-
     public Boolean getDownload() {
         return download;
     }

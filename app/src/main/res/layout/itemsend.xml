@@ -25,13 +25,12 @@
                 android:layout_width="200sp"
                 android:src="@drawable/profile_pic"
                 android:layout_height="200sp" />
-
             <Button
                 android:id="@+id/downloadImage"
-                android:layout_width="40sp"
-                android:layout_height="40sp"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
                 android:background="@drawable/baseline_arrow_circle_down_24"
-                android:layout_gravity="bottom|end" />
+                android:layout_gravity="bottom|end"></Button>
         </FrameLayout>
 
         <FrameLayout
@@ -39,13 +38,12 @@
             android:layout_width="200sp"
             android:layout_height="200sp"
             android:visibility="gone">
-
             <Button
                 android:id="@+id/downloadVideo"
-                android:layout_width="40sp"
-                android:layout_height="40sp"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
                 android:background="@drawable/baseline_arrow_circle_down_24"
-                android:layout_gravity="bottom|end" />
+                android:layout_gravity="bottom|end"></Button>
             <ImageView
                 android:id="@id/video"
                 android:layout_width="200sp"
@@ -123,52 +121,13 @@
                 </LinearLayout>
 
             </RelativeLayout>
-
             <Button
                 android:id="@+id/downloadDoc"
-                android:layout_width="40sp"
-                android:layout_height="40sp"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
                 android:background="@drawable/baseline_arrow_circle_down_24"
-                android:layout_gravity="bottom|end" />
+                android:layout_gravity="bottom|end"></Button>
         </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:id="@+id/audioFrame">
-
-            <LinearLayout
-                android:id="@+id/audio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp">
-
-                <ImageView
-                    android:id="@+id/playPauseButton"
-                    android:layout_width="40sp"
-                    android:layout_height="40sp"
-                    android:layout_margin="10sp"
-                    android:src="@drawable/audio_headset"
-                    android:layout_gravity="center_vertical"/>
-
-                <TextView
-                    android:id="@+id/audioName"
-                    android:text="kls;fkldjfskfl;;slkdfl;kds"
-                    android:layout_width="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-            <Button
-                android:id="@+id/downloadAudio"
-                android:layout_width="40sp"
-                android:layout_height="40sp"
-                android:background="@drawable/baseline_arrow_circle_down_24"
-                android:layout_gravity="bottom|end" />
-        </FrameLayout>
-
     </LinearLayout>
 
     <ImageView

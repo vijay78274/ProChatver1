@@ -33,6 +33,8 @@ android {
 }
 
 dependencies {
+    implementation 'org.apache.poi:poi:5.1.0'
+    implementation 'org.apache.poi:poi-ooxml:5.1.0'
     implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1'
     implementation 'com.guolindev.permissionx:permissionx:1.6.1'
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -40,12 +42,10 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
     implementation 'com.github.sharish:ShimmerRecyclerView:v1.3'
     implementation 'com.github.OMARIHAMZA:StoryView:1.0.2-alpha'
     implementation 'com.github.3llomi:CircularStatusView:V1.0.3'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.google.firebase:firebase-firestore:24.10.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'

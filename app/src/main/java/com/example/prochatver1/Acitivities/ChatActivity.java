@@ -1,17 +1,13 @@
 package com.example.prochatver1.Acitivities;
 
-
+import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,8 +48,7 @@ import java.util.HashMap;
 import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity implements MainRepository.Listener{
-    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 21;
-    ActivityChatActicityBinding binding;
+ActivityChatActicityBinding binding;
 mssege_adpater adapter;
 ArrayList<messege> message;
 String senderRoom, reciverRoom;
@@ -139,7 +134,6 @@ private Boolean isMicrophoneMuted = false;
         binding.attach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestWritePermission();
                 PopupMenu popupMenu = new PopupMenu(ChatActivity.this, binding.attach);
 
                 // Inflating the Popup using xml file
@@ -161,9 +155,6 @@ private Boolean isMicrophoneMuted = false;
                         } else if (id == R.id.video) {
                             videoSent();
                             return true;
-                        } else if(id == R.id.audio){
-                            audioSent();
-                            return true;
                         }
                         return false;
                     }
@@ -171,12 +162,6 @@ private Boolean isMicrophoneMuted = false;
 
                 // Displaying the popup menu
                 popupMenu.show();
-            }
-        });
-        binding.cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
             }
         });
         database.getReference().child("users").child(senderUid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -195,7 +180,6 @@ private Boolean isMicrophoneMuted = false;
         });
         init();
     }
-
     public void init(){
         mainRepository = MainRepository.getInstance();
         mainRepository.listener = this;
@@ -286,12 +270,6 @@ private Boolean isMicrophoneMuted = false;
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         startActivityForResult(intent, 17);
-    }
-    public void audioSent(){
-        Intent intent = new Intent();
-        intent.setType("audio/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent,18);
     }
 
     @Override
@@ -467,57 +445,6 @@ private Boolean isMicrophoneMuted = false;
                 }
             }
         }
-        if(requestCode==18){
-            if(data!=null){
-                if(data.getData()!=null){
-                    Uri selectedaudio = data.getData();
-                    Calendar calendar = Calendar.getInstance();
-                    StorageReference reference = storage.getReference().child("chats").child(calendar.getTimeInMillis()+"");
-                    reference.putFile(selectedaudio).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if(task.isSuccessful()){
-                                reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        String filepath = uri.toString();
-                                        String msgtxt = binding.msg.getText().toString();
-                                        Date date = new Date();
-                                        messege message1 = new messege(msgtxt,senderUid,date.getTime());
-                                        message1.setMessage("Audio");
-                                        message1.setAudioUrl(filepath);
-                                        String document = getDocumentName(selectedaudio);
-                                        message1.setDocumentName(document);
-                                        String pushkey = database.getReference().push().getKey();
-                                        HashMap<String, Object> lastmsg = new HashMap<>();
-                                        lastmsg.put("lastmsg",message1.getMessage());
-                                        lastmsg.put("lasttime",date.getTime());
-                                        database.getReference().child("chats").child(senderRoom).updateChildren(lastmsg);
-                                        database.getReference().child("chats").child(reciverRoom).updateChildren(lastmsg);
-                                        database.getReference().child("chats").child(senderRoom).child("messages").child(pushkey).setValue(message1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                database.getReference().child("chats").child(reciverRoom).child("messages").child(pushkey).setValue(message1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void unused) {
-
-                                                    }
-                                                });
-                                                HashMap<String, Object> lastmsg = new HashMap<>();
-                                                lastmsg.put("lastmsg",message1.getMessage());
-                                                lastmsg.put("lasttime",date.getTime());
-                                                database.getReference().child("chats").child(senderRoom).updateChildren(lastmsg);
-                                                database.getReference().child("chats").child(reciverRoom).updateChildren(lastmsg);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-        }
     }
     private String getDocumentName(Uri uri) {
         String documentName = null;
@@ -607,26 +534,5 @@ private Boolean isMicrophoneMuted = false;
         mainRepository.releaseRemoteView(binding.remoteView);
 
         super.onDestroy();
-    }
-    private void requestWritePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
-        } else {
-            // Permission already granted, proceed with your logic
-        }
-    }
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, proceed with your logic
-            } else {
-                // Permission denied, handle accordingly
-                requestWritePermission();
-            }
-        }
     }
 }
