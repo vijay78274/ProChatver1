@@ -72,6 +72,7 @@ private Boolean isMicrophoneMuted = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.onResume();
         binding = ActivityChatActicityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         message = new ArrayList<>();
@@ -179,6 +180,13 @@ private Boolean isMicrophoneMuted = false;
             public void onClick(View view) {
                 Intent intent = new Intent(ChatActivity.this,ImageCapture.class);
                 intent.putExtra("uid",reciveruid);
+                startActivity(intent);
+            }
+        });
+        binding.audioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChatActivity.this, AudioSend.class);
                 startActivity(intent);
             }
         });

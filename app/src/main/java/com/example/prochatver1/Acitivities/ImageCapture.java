@@ -64,6 +64,8 @@ private static final int REQUEST_IMAGE_CAPTURE = 1;
         binding.cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                Intent intent = new Intent(ImageCapture.this,ChatActivity.class);
+//                startActivity(intent);
                 finish();
             }
         });
@@ -147,8 +149,8 @@ private static final int REQUEST_IMAGE_CAPTURE = 1;
                 }
             }
         });
-        Intent intent = new Intent(ImageCapture.this,ChatActivity.class);
-        startActivity(intent);
-        finishAffinity();
+//        Intent intent = new Intent(ImageCapture.this,ChatActivity.class);
+//        startActivity(intent);
+        finish();
     }
 }

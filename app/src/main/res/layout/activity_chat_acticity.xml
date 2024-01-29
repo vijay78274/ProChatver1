@@ -52,6 +52,14 @@
                         android:background="@drawable/custom_edilt" />
 
                     <ImageView
+                        android:id="@+id/audioButton"
+                        android:layout_width="20sp"
+                        android:layout_height="25sp"
+                        android:src="@drawable/audio_send"
+                        android:layout_margin="8sp"
+                        ></ImageView>
+
+                    <ImageView
                         android:id="@+id/attach"
                         android:layout_width="20sp"
                         android:layout_height="25sp"
@@ -220,7 +228,7 @@
         android:id="@+id/callLayout"
         android:visibility="gone"
         android:layout_height="match_parent"
-        tools:visibility="visible">
+        >
         <org.webrtc.SurfaceViewRenderer
             android:id="@+id/remote_view"
             android:layout_width="match_parent"
