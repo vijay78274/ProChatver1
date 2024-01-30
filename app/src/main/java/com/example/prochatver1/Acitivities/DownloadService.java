@@ -139,7 +139,7 @@ public class DownloadService extends IntentService {
 
         // Create a notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default_channel_id")
-                .setSmallIcon(R.drawable.vs_chat_notifi) // Set your notification icon
+                .setSmallIcon(R.color.orange) // Set your notification icon
                 .setContentTitle("File Downloaded")
                 .setContentText("File: " + fileName + " has been downloaded")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);

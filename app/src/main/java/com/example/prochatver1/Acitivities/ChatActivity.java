@@ -187,6 +187,7 @@ private Boolean isMicrophoneMuted = false;
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ChatActivity.this, AudioSend.class);
+                intent.putExtra("uid",reciveruid);
                 startActivity(intent);
             }
         });
