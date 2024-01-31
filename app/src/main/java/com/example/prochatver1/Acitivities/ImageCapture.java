@@ -3,6 +3,7 @@ package com.example.prochatver1.Acitivities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -85,6 +86,7 @@ private static final int REQUEST_IMAGE_CAPTURE = 1;
     }
     public void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
@@ -98,8 +100,10 @@ private static final int REQUEST_IMAGE_CAPTURE = 1;
 
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = Uri.fromFile(photoFile);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//                Uri photoURI = Uri.fromFile(photoFile);
+                File file = new File(currentPhotoPath);
+                Uri fileUri = FileProvider.getUriForFile(ImageCapture.this, "com.example.prochatver1.fileprovider", file);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                 startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
             }
         } else {
